@@ -14,5 +14,12 @@ export default function Home() {
       <Benefits />
       <CTA />
     </div>
+import PlaybookPulse from "@/components/PlaybookPulse";
+
+export default function Home() {
+  return (
+    <main className="min-h-screen">
+      <PlaybookPulse />
+    </main>
   );
 }
