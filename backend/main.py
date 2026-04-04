@@ -9,14 +9,14 @@ from data_loader import load_playbook
 from pathlib import Path
 import asyncio
 
-api = FastAPI(
+app = FastAPI(
     title="PlaybookPulse Integration API",
     description="AI-powered incident response compliance auditing",
     version="1.0.0"
 )
 
 # CORS middleware
-api.add_middleware(
+app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000", "http://localhost:5173"],
     allow_credentials=True,
@@ -48,7 +48,7 @@ class AnalysisResponse(BaseModel):
     error: Optional[str] = None
 
 
-@api.get("/")
+@app.get("/")
 async def root():
     """Root endpoint with API information"""
     return {
@@ -70,13 +70,13 @@ async def root():
     }
 
 
-@api.post("/slack/events")
+@app.post("/slack/events")
 async def slack_events(request: Request):
     # Route all incoming POST traffic on this endpoint to the Slack Bolt app
     return await slack_handler.handle(request)
 
 
-@api.get("/health")
+@app.get("/health")
 async def health_check():
     return {
         "status": "Integration layer is live.",
@@ -90,11 +90,11 @@ async def health_check():
     }
 
 
-@api.post("/analyze", response_model=AnalysisResponse)
+@app.post("/analyze", response_model=AnalysisResponse)
 async def analyze_incident(request: AnalysisRequest):
     """
     Run incident response compliance analysis using multi-agent system.
-    
+
     This endpoint triggers the full analysis pipeline:
     1. Playbook Parser - Extracts structured steps from playbook
     2. Incident Trail - Collects incident data from integrations
@@ -112,7 +112,7 @@ async def analyze_incident(request: AnalysisRequest):
                 playbook_content = load_playbook()
         else:
             playbook_content = request.playbook_content
-        
+
         # Run analysis
         result = await agents_bridge.analyze_incident(
             playbook_content=playbook_content,
@@ -121,24 +121,24 @@ async def analyze_incident(request: AnalysisRequest):
             github_events=request.github_events,
             compliance_frameworks=request.compliance_frameworks
         )
-        
+
         if result.get("status") == "error":
             raise HTTPException(status_code=500, detail=result.get("error", "Analysis failed"))
-        
+
         return AnalysisResponse(**result)
-        
+
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@api.get("/playbooks")
+@app.get("/playbooks")
 async def list_playbooks():
     """List available sample playbooks"""
     fixtures_dir = Path(__file__).parent / "fixtures"
     playbooks = []
-    
+
     for f in fixtures_dir.glob("*.md"):
         with open(f) as file:
             content = file.read()
@@ -148,29 +148,29 @@ async def list_playbooks():
                 if line.startswith("# "):
                     title = line[2:].strip()
                     break
-        
+
         playbooks.append({
             "id": f.stem,
             "title": title,
             "filename": f.name,
             "size_bytes": f.stat().st_size
         })
-    
+
     return {"playbooks": playbooks}
 
 
-@api.get("/playbooks/{playbook_id}")
+@app.get("/playbooks/{playbook_id}")
 async def get_playbook(playbook_id: str):
     """Get a specific playbook by ID"""
     fixtures_dir = Path(__file__).parent / "fixtures"
     playbook_path = fixtures_dir / f"{playbook_id}.md"
-    
+
     if not playbook_path.exists():
         raise HTTPException(status_code=404, detail="Playbook not found")
-    
+
     with open(playbook_path) as f:
         content = f.read()
-    
+
     return {
         "id": playbook_id,
         "filename": playbook_path.name,
