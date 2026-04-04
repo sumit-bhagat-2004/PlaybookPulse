@@ -1,0 +1,42 @@
+{
+  "name": "ISO/IEC 27001:2013 Annex A.16",
+  "description": "Information Security Incident Management",
+  "standard": "ISO/IEC 27001:2013",
+  "controls": [
+    {
+      "id": "A.16.1.1",
+      "title": "Responsibilities and procedures",
+      "description": "Management responsibilities and procedures shall be established to ensure a quick, effective and orderly response to information security incidents"
+    },
+    {
+      "id": "A.16.1.2",
+      "title": "Reporting information security events",
+      "description": "Information security events shall be reported through appropriate management channels as quickly as possible"
+    },
+    {
+      "id": "A.16.1.3",
+      "title": "Reporting information security weaknesses",
+      "description": "Employees and contractors using the organization's information systems and services shall be required to note and report any observed or suspected information security weaknesses"
+    },
+    {
+      "id": "A.16.1.4",
+      "title": "Assessment of and decision on information security events",
+      "description": "Information security events shall be assessed and it shall be decided if they are to be classified as information security incidents"
+    },
+    {
+      "id": "A.16.1.5",
+      "title": "Response to information security incidents",
+      "description": "Information security incidents shall be responded to in accordance with the documented procedures"
+    },
+    {
+      "id": "A.16.1.6",
+      "title": "Learning from information security incidents",
+      "description": "Knowledge gained from analyzing and resolving information security incidents shall be used to reduce the likelihood or impact of future incidents"
+    },
+    {
+      "id": "A.16.1.7",
+      "title": "Collection of evidence",
+      "description": "The organization shall define and apply procedures for the identification, collection, acquisition and preservation of information"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "name": "NIST SP 800-61 Rev. 2",
+  "description": "Computer Security Incident Handling Guide",
+  "version": "Revision 2",
+  "controls": [
+    {
+      "id": "IR-1",
+      "title": "Incident Response Policy and Procedures",
+      "description": "Organization develops, documents, and disseminates incident response policy and procedures"
+    },
+    {
+      "id": "IR-4",
+      "title": "Incident Handling",
+      "description": "Organization implements incident handling capability including preparation, detection, analysis, containment, eradication, and recovery"
+    },
+    {
+      "id": "IR-5",
+      "title": "Incident Monitoring",
+      "description": "Organization tracks and documents information system security incidents"
+    },
+    {
+      "id": "IR-6",
+      "title": "Incident Reporting",
+      "description": "Organization requires personnel to report suspected security incidents"
+    },
+    {
+      "id": "IR-8",
+      "title": "Incident Response Plan",
+      "description": "Organization develops and implements incident response plan"
+    }
+  ],
+  "phases": [
+    "Preparation",
+    "Detection and Analysis",
+    "Containment, Eradication, and Recovery",
+    "Post-Incident Activity"
+  ]
+}

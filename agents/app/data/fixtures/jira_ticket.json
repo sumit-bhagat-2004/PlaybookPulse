@@ -1,0 +1,44 @@
+{
+  "key": "INC-789",
+  "summary": "Production Database Outage",
+  "description": "Primary production database became unresponsive at 10:00 AM. Affecting all customer-facing services.",
+  "status": "Resolved",
+  "priority": "Critical",
+  "created": "2024-01-15T10:02:00Z",
+  "updated": "2024-01-15T10:45:00Z",
+  "resolved": "2024-01-15T10:40:00Z",
+  "reporter": "Alice Engineer",
+  "assignee": "Bob SRE",
+  "comments": [
+    {
+      "id": "1",
+      "author": "Alice Engineer",
+      "body": "Detected via monitoring alerts. Database not responding to health checks.",
+      "created": "2024-01-15T10:02:30Z"
+    },
+    {
+      "id": "2",
+      "author": "Bob SRE",
+      "body": "Investigating - checking logs and recent deployments",
+      "created": "2024-01-15T10:05:00Z"
+    },
+    {
+      "id": "3",
+      "author": "Bob SRE",
+      "body": "Found high CPU usage. Initiating failover to replica.",
+      "created": "2024-01-15T10:15:00Z"
+    },
+    {
+      "id": "4",
+      "author": "Bob SRE",
+      "body": "Failover complete. Services recovering.",
+      "created": "2024-01-15T10:25:00Z"
+    },
+    {
+      "id": "5",
+      "author": "Alice Engineer",
+      "body": "All systems operational. Incident resolved.",
+      "created": "2024-01-15T10:40:00Z"
+    }
+  ]
+}

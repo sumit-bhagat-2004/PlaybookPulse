@@ -1,0 +1,55 @@
+{
+  "channel": "C01234ABCD",
+  "thread_ts": "1640000000.123456",
+  "messages": [
+    {
+      "type": "message",
+      "user": "U01ABC123",
+      "text": "Database outage detected - prod DB not responding",
+      "ts": "1640000000.123456"
+    },
+    {
+      "type": "message",
+      "user": "U02DEF456",
+      "text": "Creating Jira ticket INC-789",
+      "ts": "1640000060.234567"
+    },
+    {
+      "type": "message",
+      "user": "U01ABC123",
+      "text": "Checking logs now - seeing connection timeout errors",
+      "ts": "1640000120.345678"
+    },
+    {
+      "type": "message",
+      "user": "U03GHI789",
+      "text": "I'll be incident commander for this",
+      "ts": "1640000180.456789"
+    },
+    {
+      "type": "message",
+      "user": "U02DEF456",
+      "text": "Attempting failover to replica database",
+      "ts": "1640000300.567890"
+    },
+    {
+      "type": "message",
+      "user": "U02DEF456",
+      "text": "Failover successful - monitoring recovery",
+      "ts": "1640000420.678901"
+    },
+    {
+      "type": "message",
+      "user": "U01ABC123",
+      "text": "All services back online, running tests",
+      "ts": "1640000540.789012"
+    },
+    {
+      "type": "message",
+      "user": "U03GHI789",
+      "text": "Incident resolved. Will schedule post-mortem tomorrow 2pm",
+      "ts": "1640000660.890123"
+    }
+  ],
+  "participants": ["U01ABC123", "U02DEF456", "U03GHI789"]
+}

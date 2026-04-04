@@ -1,0 +1,32 @@
+{
+  "name": "SOC 2 CC7",
+  "description": "Common Criteria 7 - System Operations",
+  "category": "System Operations",
+  "controls": [
+    {
+      "id": "CC7.1",
+      "title": "Detection of Security Events",
+      "description": "The entity uses detection tools and procedures to identify anomalous activity and incidents"
+    },
+    {
+      "id": "CC7.2",
+      "title": "Response to Security Incidents",
+      "description": "The entity responds to identified security incidents through containment, mitigation, and recovery"
+    },
+    {
+      "id": "CC7.3",
+      "title": "Monitoring of System Operations",
+      "description": "The entity monitors system components for performance, capacity, and security"
+    },
+    {
+      "id": "CC7.4",
+      "title": "Incident Documentation",
+      "description": "The entity documents detected security incidents and response activities"
+    },
+    {
+      "id": "CC7.5",
+      "title": "Post-Incident Analysis",
+      "description": "The entity performs post-incident analysis to identify lessons learned and improvements"
+    }
+  ]
+}
