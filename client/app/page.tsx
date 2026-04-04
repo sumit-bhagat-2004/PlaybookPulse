@@ -3,7 +3,6 @@ import Features from "@/components/Features";
 import HowItWorks from "@/components/HowItWorks";
 import Benefits from "@/components/Benefits";
 import CTA from "@/components/CTA";
-import Image from "next/image";
 
 export default function Home() {
   return (
@@ -14,12 +13,5 @@ export default function Home() {
       <Benefits />
       <CTA />
     </div>
-import PlaybookPulse from "@/components/PlaybookPulse";
-
-export default function Home() {
-  return (
-    <main className="min-h-screen">
-      <PlaybookPulse />
-    </main>
   );
 }
