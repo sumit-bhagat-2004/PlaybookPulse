@@ -62,14 +62,16 @@ class LLMClient:
         prompt: str,
         system: Optional[str] = None,
         expected_format: str = "json",
-        max_retries: int = 2
+        max_retries: int = 2,
+        max_tokens: Optional[int] = None
     ) -> Dict[str, Any]:
         """Get structured output from the configured LLM provider"""
         return await self._client.analyze_with_structured_output(
             prompt=prompt,
             system=system,
             expected_format=expected_format,
-            max_retries=max_retries
+            max_retries=max_retries,
+            max_tokens=max_tokens
         )
 
 

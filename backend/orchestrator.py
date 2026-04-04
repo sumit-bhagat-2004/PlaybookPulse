@@ -17,9 +17,9 @@ from typing import List, Dict, Any
 from datetime import datetime
 
 from google import genai
-from backend.data_loader import load_playbook, load_slack_thread
-from backend.github_integration import open_playbook_pr
-from backend.config import settings
+from data_loader import load_playbook, load_slack_thread
+from github_integration import open_playbook_pr
+from config import settings
 
 
 class ComplianceOrchestrator:
