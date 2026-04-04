@@ -1,0 +1,51 @@
+{
+  "repository": "myorg/myapp",
+  "events": [
+    {
+      "type": "PushEvent",
+      "created_at": "2024-01-15T10:30:00Z",
+      "actor": "bob-sre",
+      "payload": {
+        "commits": 1,
+        "ref": "refs/heads/hotfix/database-timeout"
+      }
+    },
+    {
+      "type": "PullRequestEvent",
+      "created_at": "2024-01-15T10:35:00Z",
+      "actor": "bob-sre",
+      "payload": {
+        "action": "opened",
+        "pr_number": 456
+      }
+    },
+    {
+      "type": "PullRequestEvent",
+      "created_at": "2024-01-15T10:42:00Z",
+      "actor": "alice-engineer",
+      "payload": {
+        "action": "merged",
+        "pr_number": 456
+      }
+    },
+    {
+      "type": "IssuesEvent",
+      "created_at": "2024-01-15T11:00:00Z",
+      "actor": "bob-sre",
+      "payload": {
+        "action": "opened",
+        "issue_number": 789
+      }
+    }
+  ],
+  "pull_requests": [
+    {
+      "number": 456,
+      "title": "Hotfix: Increase database connection timeout",
+      "state": "closed",
+      "created_at": "2024-01-15T10:35:00Z",
+      "merged_at": "2024-01-15T10:42:00Z",
+      "author": "bob-sre"
+    }
+  ]
+}
