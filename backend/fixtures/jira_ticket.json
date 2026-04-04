@@ -1,0 +1,26 @@
+{
+  "ticket_id": "SEC-1234",
+  "title": "Production credential leaked in public GitHub repository",
+  "events": [
+    {
+      "status_change": "Open",
+      "timestamp": "2024-12-10T14:05:00Z",
+      "actor": "alice_oncall"
+    },
+    {
+      "status_change": "In Progress",
+      "timestamp": "2024-12-10T14:10:00Z",
+      "actor": "alice_oncall"
+    },
+    {
+      "status_change": "Resolved",
+      "timestamp": "2024-12-10T16:05:00Z",
+      "actor": "bob_secops"
+    },
+    {
+      "status_change": "Closed",
+      "timestamp": "2024-12-10T17:30:00Z",
+      "actor": "bob_secops"
+    }
+  ]
+}

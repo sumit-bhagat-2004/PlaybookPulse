@@ -1,0 +1,52 @@
+[
+  {
+    "user": "U12345_PagerDuty",
+    "timestamp": "2024-12-10T14:00:00Z",
+    "text": "ALERT: High entropy string detected in public GitHub repo."
+  },
+  {
+    "user": "alice_oncall",
+    "timestamp": "2024-12-10T14:05:00Z",
+    "text": "Looking into it. It's the prod DB read-only key."
+  },
+  {
+    "user": "alice_oncall",
+    "timestamp": "2024-12-10T14:15:00Z",
+    "text": "Key revoked. Starting rotation now, but having issues with the secret manager."
+  },
+  {
+    "user": "bob_secops",
+    "timestamp": "2024-12-10T16:00:00Z",
+    "text": "Finally got the new key deployed. PR is merged."
+  },
+  {
+    "user": "alice_oncall",
+    "timestamp": "2024-12-10T16:05:00Z",
+    "text": "Checking access logs now to see if the key was used."
+  },
+  {
+    "user": "alice_oncall",
+    "timestamp": "2024-12-10T16:30:00Z",
+    "text": "Logs look clean. No suspicious access patterns detected."
+  },
+  {
+    "user": "bob_secops",
+    "timestamp": "2024-12-10T16:35:00Z",
+    "text": "Great work on the quick rotation. I'll start the post-mortem doc."
+  },
+  {
+    "user": "alice_oncall",
+    "timestamp": "2024-12-10T17:00:00Z",
+    "text": "Wait, did anyone notify legal about this? I don't think we did."
+  },
+  {
+    "user": "bob_secops",
+    "timestamp": "2024-12-10T17:05:00Z",
+    "text": "Oh no, you're right. Let me ping them now."
+  },
+  {
+    "user": "bob_secops",
+    "timestamp": "2024-12-10T17:10:00Z",
+    "text": "Legal team has been notified. They're reviewing the incident details."
+  }
+]

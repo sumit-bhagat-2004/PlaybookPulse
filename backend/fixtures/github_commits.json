@@ -1,0 +1,20 @@
+[
+  {
+    "commit_hash": "a1b2c3d4",
+    "author": "alice_oncall",
+    "message": "revoke: Disable compromised DB read-only key",
+    "timestamp": "2024-12-10T14:20:00Z"
+  },
+  {
+    "commit_hash": "e5f6g7h8",
+    "author": "bob_secops",
+    "message": "feat: Rotate DB credentials and update secret manager",
+    "timestamp": "2024-12-10T16:00:00Z"
+  },
+  {
+    "commit_hash": "i9j0k1l2",
+    "author": "alice_oncall",
+    "message": "docs: Add credential leak incident to security log",
+    "timestamp": "2024-12-10T17:45:00Z"
+  }
+]
