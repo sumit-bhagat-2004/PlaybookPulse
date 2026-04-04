@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from typing import List
-from backend.schemas import SlackMessage, JiraTicket, GitCommit
+from schemas import SlackMessage, JiraTicket, GitCommit
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 

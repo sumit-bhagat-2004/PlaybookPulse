@@ -31,8 +31,18 @@ async def test_full_analysis_flow():
     parse_result = await parser.process({
         "playbook_content": request.playbook_content
     })
-    print(f"   - Parser status: {parse_result.get('status')}")
-    print(f"   - Sections found: {parse_result.get('data', {}).get('sections', [])}")
+    
+    # Handle None or failed results gracefully
+    if parse_result is None:
+        print(f"   ✗ Parser returned None (unexpected)")
+        parse_result = {"success": False, "data": {}, "error": "Parser returned None"}
+    
+    print(f"   - Parser success: {parse_result.get('success', False)}")
+    if parse_result.get('success'):
+        steps = parse_result.get('data', {}).get('steps', [])
+        print(f"   - Steps found: {len(steps)}")
+    else:
+        print(f"   - Error: {parse_result.get('error', 'Unknown error')}")
     
     # Test incident trail agent (without external integrations)
     print(f"\n3. Testing IncidentTrailAgent...")
@@ -41,26 +51,53 @@ async def test_full_analysis_flow():
     incident_result = await incident_agent.process(
         SAMPLE_INCIDENT_DATA  # Will gracefully skip external APIs
     )
-    print(f"   - Agent status: {incident_result.get('status')}")
-    print(f"   - Slack integration available: {incident_result.get('data', {}).get('integrations_status', {}).get('slack')}")
-    print(f"   - Jira integration available: {incident_result.get('data', {}).get('integrations_status', {}).get('jira')}")
-    print(f"   - GitHub integration available: {incident_result.get('data', {}).get('integrations_status', {}).get('github')}")
     
-    # Test adherence checker
+    # Handle None results gracefully
+    if incident_result is None:
+        print(f"   ✗ Agent returned None (unexpected)")
+        incident_result = {"success": False, "data": {}, "error": "Agent returned None"}
+    
+    print(f"   - Agent success: {incident_result.get('success', False)}")
+    integrations = incident_result.get('data', {}).get('integrations_status', {})
+    print(f"   - Slack integration: {integrations.get('slack', 'N/A')}")
+    print(f"   - Jira integration: {integrations.get('jira', 'N/A')}")
+    print(f"   - GitHub integration: {integrations.get('github', 'N/A')}")
+    
+    # Test adherence checker - needs playbook_steps (parsed steps), not playbook_content
     print(f"\n4. Testing AdherenceCheckerAgent...")
     from app.agents.adherence_checker import AdherenceCheckerAgent
     adherence_agent = AdherenceCheckerAgent()
+    
+    # Get steps from parse_result (or use defaults if parsing failed)
+    playbook_steps = []
+    if parse_result and parse_result.get('success'):
+        playbook_steps = parse_result.get('data', {}).get('steps', [])
+    
+    if not playbook_steps:
+        print(f"   ⚠ No parsed steps available, using mock steps")
+        playbook_steps = [
+            {"step_id": "step_1", "phase": "Detection", "description": "Detect incident", "required_actions": ["Monitor alerts"], "responsible_roles": ["SRE"]},
+            {"step_id": "step_2", "phase": "Containment", "description": "Contain incident", "required_actions": ["Isolate systems"], "responsible_roles": ["Security"]}
+        ]
+    
     adherence_result = await adherence_agent.process({
-        "playbook_content": request.playbook_content,
-        "compliance_framework": ComplianceFramework.NIST_SP_800_61,
+        "playbook_steps": playbook_steps,  # Pass parsed steps, not raw content
         "incident_data": SAMPLE_INCIDENT_DATA
     })
-    print(f"   - Agent status: {adherence_result.get('status')}")
-    if adherence_result.get('status') == 'success':
+    
+    # Handle None results gracefully
+    if adherence_result is None:
+        print(f"   ✗ Agent returned None (unexpected)")
+        adherence_result = {"success": False, "data": {}, "error": "Agent returned None"}
+    
+    print(f"   - Agent success: {adherence_result.get('success', False)}")
+    if adherence_result.get('success'):
         checks = adherence_result.get('data', {}).get('adherence_checks', [])
         print(f"   - Adherence checks performed: {len(checks)}")
         for check in checks[:2]:
             print(f"     • {check.get('step_id')}: {check.get('adherence_level')}")
+    else:
+        print(f"   - Error: {adherence_result.get('error', 'Unknown error')}")
     
     # Test full orchestrator
     print(f"\n5. Testing OrchestratorAgent...")
@@ -105,25 +142,36 @@ async def test_individual_agents():
     except Exception as e:
         print(f"   ✗ Error: {e}")
     
-    # Test base agent
-    print(f"\n2. Testing BaseAgent...")
+    # Test base agent - BaseAgent is abstract, so instantiation should fail
+    print(f"\n2. Testing BaseAgent (abstract class)...")
     try:
         from app.agents.base import BaseAgent
-        agent = BaseAgent("test")
-        print(f"   ✓ BaseAgent initialized")
-        print(f"   ✓ Has LLM client: {hasattr(agent, 'llm_client')}")
+        try:
+            agent = BaseAgent("test")
+            print(f"   ✗ BaseAgent should be abstract!")
+        except TypeError as e:
+            print(f"   ✓ BaseAgent is correctly abstract (cannot instantiate)")
+            print(f"   ✓ Error message: {str(e)[:60]}...")
     except Exception as e:
-        print(f"   ✗ Error: {e}")
+        print(f"   ✗ Unexpected error: {e}")
     
     # Test playbook parser without LLM (structure only)
     print(f"\n3. Testing PlaybookParserAgent (structure parsing)...")
+    parsed_steps = []  # Store for later tests
     try:
         from app.agents.playbook_parser import PlaybookParserAgent
         parser = PlaybookParserAgent()
         result = await parser.process({"playbook_content": SAMPLE_PLAYBOOK})
-        print(f"   ✓ Parser status: {result.get('status')}")
-        sections = result.get('data', {}).get('sections', [])
-        print(f"   ✓ Sections found: {sections}")
+        
+        if result is None:
+            print(f"   ✗ Parser returned None")
+        else:
+            print(f"   ✓ Parser success: {result.get('success', False)}")
+            if result.get('success'):
+                parsed_steps = result.get('data', {}).get('steps', [])
+                print(f"   ✓ Steps found: {len(parsed_steps)}")
+            else:
+                print(f"   ✗ Error: {result.get('error', 'Unknown')}")
     except Exception as e:
         print(f"   ✗ Error: {e}")
     
@@ -133,21 +181,54 @@ async def test_individual_agents():
         from app.agents.incident_trail import IncidentTrailAgent
         agent = IncidentTrailAgent()
         result = await agent.process({})
-        print(f"   ✓ Agent status: {result.get('status')}")
-        print(f"   ✓ Gracefully handles missing integrations")
+        
+        if result is None:
+            print(f"   ✗ Agent returned None")
+        else:
+            print(f"   ✓ Agent success: {result.get('success', False)}")
+            print(f"   ✓ Gracefully handles missing integrations")
     except Exception as e:
         print(f"   ✗ Error: {e}")
     
-    # Test compliance mapper
+    # Test compliance mapper - needs adherence_checks from previous step
     print(f"\n5. Testing ComplianceMapperAgent...")
     try:
         from app.agents.compliance_mapper import ComplianceMapperAgent
         mapper = ComplianceMapperAgent()
+        
+        # ComplianceMapper needs adherence_checks (from AdherenceChecker)
+        # For individual test, we'll create mock adherence checks
+        mock_adherence_checks = [
+            {
+                "step_id": "step_1",
+                "adherence_level": "full",
+                "evidence": ["Log entries show detection at 14:32"],
+                "gaps": [],
+                "recommendations": []
+            },
+            {
+                "step_id": "step_2", 
+                "adherence_level": "partial",
+                "evidence": ["Incident was contained"],
+                "gaps": ["Containment took longer than expected"],
+                "recommendations": ["Automate containment procedures"]
+            }
+        ]
+        
         result = await mapper.process({
-            "playbook_content": SAMPLE_PLAYBOOK,
-            "frameworks": ["NIST_SP_800_61"]
+            "adherence_checks": mock_adherence_checks,
+            "frameworks": ["nist_sp_800_61"]
         })
-        print(f"   ✓ Mapper status: {result.get('status')}")
+        
+        if result is None:
+            print(f"   ✗ Mapper returned None")
+        else:
+            print(f"   ✓ Mapper success: {result.get('success', False)}")
+            if result.get('success'):
+                mappings = result.get('data', {}).get('compliance_mappings', [])
+                print(f"   ✓ Mappings generated: {len(mappings)}")
+            else:
+                print(f"   ✗ Error: {result.get('error', 'Unknown')}")
     except Exception as e:
         print(f"   ✗ Error: {e}")
     

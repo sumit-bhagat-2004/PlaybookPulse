@@ -18,7 +18,7 @@ class GeminiClient:
         
         self.client = genai.Client(api_key=settings.gemini_api_key)
         self.model = settings.gemini_model
-        self.max_tokens = settings.anthropic_max_tokens  # Reuse token setting
+        self.max_tokens = settings.gemini_max_tokens  # Use Gemini-specific setting
         self.temperature = settings.anthropic_temperature  # Reuse temp setting
     
     @retry(
@@ -87,7 +87,8 @@ class GeminiClient:
         prompt: str,
         system: Optional[str] = None,
         expected_format: str = "json",
-        max_retries: int = 2
+        max_retries: int = 2,
+        max_tokens: Optional[int] = None
     ) -> Dict[str, Any]:
         """
         Get structured output from Gemini with retry logic
@@ -97,16 +98,24 @@ class GeminiClient:
             system: System prompt
             expected_format: Expected format (json, xml, etc.)
             max_retries: Number of retry attempts for invalid responses
+            max_tokens: Override max tokens (uses 8192 by default for structured output)
             
         Returns:
             Parsed structured output
         """
         import json
         
+        # Use higher token limit for structured output to avoid truncation
+        structured_max_tokens = max_tokens or 8192
+        
         for attempt in range(max_retries):
             structured_prompt = f"{prompt}\n\nIMPORTANT: Respond with ONLY valid {expected_format} format, no explanation or markdown."
             
-            response = await self.create_message(structured_prompt, system=system)
+            response = await self.create_message(
+                structured_prompt, 
+                system=system,
+                max_tokens=structured_max_tokens
+            )
             
             if expected_format == "json":
                 try:

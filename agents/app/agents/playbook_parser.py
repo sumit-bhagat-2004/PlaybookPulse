@@ -31,36 +31,21 @@ class PlaybookParserAgent(BaseAgent):
         self.log(f"Parsing playbook ({len(playbook_content)} characters)")
         
         system_prompt = """You are an expert at analyzing incident response playbooks.
-Your task is to extract structured information from playbook documents.
-Focus on identifying:
-- Clear phases/stages of incident response
-- Specific steps and actions required
-- Responsible roles for each step
-- Dependencies between steps
-- Required tools or systems"""
+Extract structured information concisely. Keep descriptions brief (max 50 words each).
+Respond ONLY with valid JSON - no markdown, no explanation."""
         
-        prompt = f"""Analyze the following incident response playbook and extract structured information.
+        prompt = f"""Analyze this playbook and extract structured information.
 
-Playbook Content:
 {playbook_content}
 
-Please provide a JSON response with the following structure:
-{{
-    "playbook_title": "Title of the playbook",
-    "phases": ["Phase 1", "Phase 2", ...],
-    "steps": [
-        {{
-            "step_id": "step_1",
-            "phase": "Detection",
-            "description": "Clear description of the step",
-            "required_actions": ["Action 1", "Action 2"],
-            "responsible_roles": ["Role 1", "Role 2"],
-            "dependencies": ["step_id that must complete first"]
-        }}
-    ]
-}}
+Respond with this EXACT JSON structure (keep descriptions SHORT):
+{{"playbook_title": "title", "phases": ["Phase1", "Phase2"], "steps": [{{"step_id": "step_1", "phase": "Detection", "description": "brief description", "required_actions": ["action1"], "responsible_roles": ["role1"]}}]}}
 
-Extract ALL steps and be thorough."""
+IMPORTANT:
+- Keep each description under 50 words
+- Limit to the 10 MOST IMPORTANT steps
+- Do NOT include markdown code blocks
+- Output ONLY valid JSON"""
         
         try:
             result = await self.call_llm_structured(prompt, system_prompt)

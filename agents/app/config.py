@@ -40,6 +40,7 @@ class Settings(BaseSettings):
     # Google Gemini API
     gemini_api_key: str = Field(default="", alias="GEMINI_API_KEY")
     gemini_model: str = Field(default="gemini-1.5-flash", alias="GEMINI_MODEL")
+    gemini_max_tokens: int = Field(default=8192, alias="GEMINI_MAX_TOKENS")
     
     # LLM Provider Selection (anthropic or gemini)
     llm_provider: str = Field(default="gemini", alias="LLM_PROVIDER")
