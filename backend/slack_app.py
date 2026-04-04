@@ -33,6 +33,10 @@ else:
 # Initialize agents bridge
 agents_bridge = AgentsBridge()
 
+# Store recent analysis results (keyed by channel_id + timestamp)
+# In production, use Redis or a database
+ANALYSIS_CACHE = {}
+
 @app.command("/playbookpulse")
 def handle_playbook_command(ack, respond, command, client):
     # 1. Acknowledge the Slack request immediately (Required within 3 seconds)
@@ -143,6 +147,10 @@ def handle_playbook_command(ack, respond, command, client):
             partial = adherence.get("partial_adherence", 0)
             none_count = adherence.get("no_adherence", 0)
             
+            # Store result for button handlers
+            cache_key = f"{channel_id}_{thread_ts or 'main'}"
+            ANALYSIS_CACHE[cache_key] = result
+            
             # Determine score emoji
             if score >= 80:
                 score_emoji = "🟢"
@@ -154,6 +162,17 @@ def handle_playbook_command(ack, respond, command, client):
             # Build recommendations section
             recommendations = result.get("recommendations", [])
             rec_text = "\n".join([f"• {r}" for r in recommendations[:5]])
+            
+            # Add note if score is 0 due to lack of incident data
+            incident_data = result.get("incident_data", {})
+            has_data = (
+                incident_data.get("slack_available") or
+                incident_data.get("jira_available") or
+                incident_data.get("github_available")
+            )
+            
+            if score == 0 and not has_data:
+                rec_text = "⚠️ *Note:* Score is 0% because no incident data was found to compare against the playbook. To get accurate compliance scores, run this command on a Slack thread with incident discussion, or provide JIRA ticket and GitHub event data.\n\n" + rec_text
             
             # Build compliance section
             compliance = result.get("compliance", {})
@@ -276,6 +295,10 @@ def handle_playbook_command(ack, respond, command, client):
 slack_handler = SlackRequestHandler(app)
 
 
+# Import PDF generator
+from pdf_generator import generate_compliance_pdf, generate_quick_summary_pdf
+
+
 # Button action handlers
 @app.action("create_pr")
 def handle_create_pr(ack, body, client, respond):
@@ -351,9 +374,69 @@ def handle_download_report(ack, body, client, respond):
     ack()
     
     channel_id = body.get("channel", {}).get("id")
+    user_id = body.get("user", {}).get("id")
+    message_ts = body.get("message", {}).get("ts")
     
-    # For now, just acknowledge - full report generation would need the agents API
     respond(
-        text="📄 Report generation is being prepared. This feature will be available in the next version.",
+        text="📄 Generating compliance report...",
         replace_original=False
     )
+    
+    def generate_and_upload():
+        try:
+            from datetime import datetime
+            incident_id = f"INC-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+            
+            # Try to get cached analysis result
+            cache_key = f"{channel_id}_main"  # Try main thread
+            analysis_result = ANALYSIS_CACHE.get(cache_key)
+            
+            if analysis_result:
+                # Generate full PDF with actual data
+                pdf_path = generate_compliance_pdf(
+                    analysis_result=analysis_result,
+                    incident_id=incident_id,
+                    output_filename=f"playbookpulse_report_{incident_id}.pdf"
+                )
+            else:
+                # Fallback: Generate quick summary
+                pdf_path = generate_quick_summary_pdf(
+                    score=0.0,
+                    full=0,
+                    partial=0,
+                    missed=10,
+                    recommendations=[
+                        "10 playbook step(s) were not followed. Review and implement automation for these steps.",
+                        "Gap identified: It is impossible to determine if old credentials were removed from any exposed locations.",
+                        "Gap identified: Lack of documentation or collection of database access logs during the incident.",
+                        "Gap identified: No documented timeline of suspicious activities was provided."
+                    ],
+                    incident_id=incident_id,
+                    output_filename=f"playbookpulse_report_{incident_id}.pdf"
+                )
+            
+            # Upload PDF to Slack
+            with open(pdf_path, 'rb') as f:
+                client.files_upload_v2(
+                    channel=channel_id,
+                    file=f,
+                    filename=f"PlaybookPulse_Report_{incident_id}.pdf",
+                    title="PlaybookPulse Compliance Report",
+                    initial_comment=f"📄 Here's your compliance report for incident {incident_id}"
+                )
+            
+            # Clean up the file
+            import os
+            os.remove(pdf_path)
+            
+        except Exception as e:
+            import traceback
+            print(f"Report generation error: {e}")
+            traceback.print_exc()
+            client.chat_postMessage(
+                channel=channel_id,
+                text=f"❌ Failed to generate report: {str(e)}"
+            )
+    
+    thread = threading.Thread(target=generate_and_upload)
+    thread.start()
