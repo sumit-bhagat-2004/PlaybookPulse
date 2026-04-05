@@ -47,5 +47,136 @@
       "merged_at": "2024-01-15T10:42:00Z",
       "author": "bob-sre"
     }
-  ]
+  ],
+  "commits": [
+    {
+      "sha": "a1b2c3d4e5f6g7h8i9j0",
+      "message": "Fix: Increase database connection timeout from 30s to 120s\n\nThis resolves the timeout errors during high load periods.\nRelated to incident INC-789.\n\nTested in staging - connection pool handles 3x load now.",
+      "author": {
+        "name": "Bob Smith",
+        "email": "bob@example.com",
+        "username": "bob-dba"
+      },
+      "committer": {
+        "name": "Bob Smith",
+        "date": "2024-01-15T10:23:00Z"
+      },
+      "date": "2024-01-15T10:23:00Z",
+      "url": "https://github.com/myorg/myapp/commit/a1b2c3d4e5f6g7h8i9j0",
+      "stats": {
+        "additions": 3,
+        "deletions": 1,
+        "total": 4
+      },
+      "files_changed": [
+        {
+          "filename": "config/database.yml",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 1,
+          "changes": 4
+        }
+      ]
+    },
+    {
+      "sha": "b2c3d4e5f6g7h8i9j0k1",
+      "message": "Add monitoring for database connection pool\n\nImplement CloudWatch metrics for connection pool utilization.\nThis will help detect similar issues in the future.\n\nMetrics added:\n- active_connections\n- idle_connections\n- connection_wait_time\n- pool_exhaustion_events",
+      "author": {
+        "name": "Alice Johnson",
+        "email": "alice@example.com",
+        "username": "alice-sre"
+      },
+      "committer": {
+        "name": "Alice Johnson",
+        "date": "2024-01-15T11:15:00Z"
+      },
+      "date": "2024-01-15T11:15:00Z",
+      "url": "https://github.com/myorg/myapp/commit/b2c3d4e5f6g7h8i9j0k1",
+      "stats": {
+        "additions": 45,
+        "deletions": 2,
+        "total": 47
+      },
+      "files_changed": [
+        {
+          "filename": "lib/monitoring/database_metrics.rb",
+          "status": "added",
+          "additions": 40,
+          "deletions": 0,
+          "changes": 40
+        },
+        {
+          "filename": "config/monitoring.yml",
+          "status": "modified",
+          "additions": 5,
+          "deletions": 2,
+          "changes": 7
+        }
+      ]
+    }
+  ],
+  "incident_commits": [
+    {
+      "sha": "a1b2c3d4e5f6g7h8i9j0",
+      "message": "Fix: Increase database connection timeout from 30s to 120s\n\nThis resolves the timeout errors during high load periods.\nRelated to incident INC-789.",
+      "author": {
+        "name": "Bob Smith",
+        "email": "bob@example.com",
+        "username": "bob-sre"
+      },
+      "committer": {
+        "name": "Bob Smith",
+        "date": "2024-01-15T10:30:00Z"
+      },
+      "date": "2024-01-15T10:30:00Z",
+      "url": "https://github.com/myorg/myapp/commit/a1b2c3d4e5f6g7h8i9j0",
+      "stats": {
+        "additions": 3,
+        "deletions": 1,
+        "total": 4
+      },
+      "files_changed": [
+        {
+          "filename": "config/database.yml",
+          "status": "modified",
+          "additions": 3,
+          "deletions": 1,
+          "changes": 4
+        }
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "type": "commit",
+      "timestamp": "2024-01-15T10:40:00Z",
+      "actor": "alice-engineer",
+      "description": "Add monitoring for database connection pool",
+      "sha": "b2c3d4e5f6g7h8i9j0k1",
+      "files_changed": 2,
+      "additions": 45,
+      "deletions": 2
+    },
+    {
+      "type": "pull_request",
+      "timestamp": "2024-01-15T10:35:00Z",
+      "actor": "bob-sre",
+      "description": "PR #456: Hotfix: Increase database connection timeout",
+      "pr_number": 456,
+      "state": "closed"
+    },
+    {
+      "type": "commit",
+      "timestamp": "2024-01-15T10:30:00Z",
+      "actor": "bob-sre",
+      "description": "Fix: Increase database connection timeout from 30s to 120s",
+      "sha": "a1b2c3d4e5f6g7h8i9j0",
+      "files_changed": 1,
+      "additions": 3,
+      "deletions": 1
+    }
+  ],
+  "total_commits": 2,
+  "total_incident_commits": 1
 }
+
