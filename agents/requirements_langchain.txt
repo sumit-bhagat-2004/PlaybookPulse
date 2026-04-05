@@ -1,0 +1,6 @@
+# LangChain and related dependencies for CIS compliance agent
+langchain==0.3.18
+langchain-core
+langchain-google-genai==2.0.8
+langsmith==0.3.10
+python-dateutil==2.9.0

@@ -1,0 +1,781 @@
+{
+  "pre_pr": {
+    "check_type": "static",
+    "phase": "pre_pr",
+    "timestamp": "2026-04-05T00:06:16.000682",
+    "framework": "CIS Controls v8",
+    "controls_checked": [
+      {
+        "control_id": "17.1",
+        "control_title": "Designate Personnel to Manage Incident Handling",
+        "status": "pass",
+        "checks_performed": [
+          {
+            "check": "playbook_has_roles_defined",
+            "passed": true,
+            "message": "Playbook must define responsible roles/teams"
+          },
+          {
+            "check": "incident_commander_role_exists",
+            "passed": true,
+            "message": "Incident Commander role must be defined"
+          },
+          {
+            "check": "escalation_path_defined",
+            "passed": true,
+            "message": "Escalation path should be defined"
+          }
+        ],
+        "failures": [],
+        "warnings": []
+      },
+      {
+        "control_id": "17.2",
+        "control_title": "Establish Contact Information for Reporting",
+        "status": "pass",
+        "checks_performed": [
+          {
+            "check": "contact_list_exists",
+            "passed": true,
+            "message": "Contact/notification list should exist"
+          },
+          {
+            "check": "notification_channels_defined",
+            "passed": true,
+            "message": "Notification channels must be specified"
+          },
+          {
+            "check": "external_contacts_documented",
+            "passed": true,
+            "message": "External contacts should be documented"
+          }
+        ],
+        "failures": [],
+        "warnings": []
+      },
+      {
+        "control_id": "17.3",
+        "control_title": "Establish Enterprise Process for Reporting",
+        "status": "pass",
+        "checks_performed": [
+          {
+            "check": "reporting_process_documented",
+            "passed": true,
+            "message": "Reporting process must be documented"
+          },
+          {
+            "check": "initial_response_sla_defined",
+            "passed": true,
+            "message": "Initial response SLA should be defined"
+          },
+          {
+            "check": "alert_thresholds_set",
+            "passed": true,
+            "message": "Alert thresholds should be set"
+          }
+        ],
+        "failures": [],
+        "warnings": []
+      },
+      {
+        "control_id": "17.4",
+        "control_title": "Establish Incident Response Process",
+        "status": "pass",
+        "checks_performed": [
+          {
+            "check": "all_phases_documented",
+            "passed": true,
+            "message": "All IR phases (detection, containment, recovery) must be documented"
+          },
+          {
+            "check": "roles_responsibilities_clear",
+            "passed": true,
+            "message": "Roles and responsibilities must be clear"
+          },
+          {
+            "check": "communication_plan_exists",
+            "passed": true,
+            "message": "Communication plan should exist"
+          }
+        ],
+        "failures": [],
+        "warnings": []
+      },
+      {
+        "control_id": "17.5",
+        "control_title": "Assign Key Roles and Responsibilities",
+        "status": "pass",
+        "checks_performed": [
+          {
+            "check": "legal_team_identified",
+            "passed": true,
+            "message": "Legal team should be identified"
+          },
+          {
+            "check": "it_security_team_identified",
+            "passed": true,
+            "message": "IT Security team must be identified"
+          },
+          {
+            "check": "pr_team_identified",
+            "passed": true,
+            "message": "PR/Communications team should be identified"
+          },
+          {
+            "check": "analyst_roles_defined",
+            "passed": true,
+            "message": "Analyst roles must be defined"
+          }
+        ],
+        "failures": [],
+        "warnings": []
+      },
+      {
+        "control_id": "17.6",
+        "control_title": "Define Communication Mechanisms",
+        "status": "warn",
+        "checks_performed": [
+          {
+            "check": "internal_comms_defined",
+            "passed": true,
+            "message": "Internal communication mechanisms must be defined"
+          },
+          {
+            "check": "external_comms_defined",
+            "passed": true,
+            "message": "External communication mechanisms should be defined"
+          },
+          {
+            "check": "secure_channels_specified",
+            "passed": false,
+            "message": "Secure communication channels should be specified"
+          }
+        ],
+        "failures": [],
+        "warnings": [
+          "17.6: Secure communication channels should be specified"
+        ]
+      },
+      {
+        "control_id": "17.7",
+        "control_title": "Conduct Routine IR Exercises",
+        "status": "warn",
+        "checks_performed": [
+          {
+            "check": "exercise_schedule_defined",
+            "passed": true,
+            "message": "Exercise schedule should be defined"
+          },
+          {
+            "check": "exercise_scenarios_documented",
+            "passed": false,
+            "message": "Exercise scenarios should be documented"
+          },
+          {
+            "check": "exercise_metrics_specified",
+            "passed": false,
+            "message": "Exercise metrics should be specified"
+          }
+        ],
+        "failures": [],
+        "warnings": [
+          "17.7: Exercise scenarios should be documented",
+          "17.7: Exercise metrics should be specified"
+        ]
+      },
+      {
+        "control_id": "17.8",
+        "control_title": "Conduct Post-Incident Reviews",
+        "status": "pass",
+        "checks_performed": [
+          {
+            "check": "postmortem_template_exists",
+            "passed": true,
+            "message": "Postmortem template should exist"
+          },
+          {
+            "check": "review_timeline_defined",
+            "passed": true,
+            "message": "Review timeline should be defined"
+          },
+          {
+            "check": "lessons_learned_process",
+            "passed": true,
+            "message": "Lessons learned process should be defined"
+          }
+        ],
+        "failures": [],
+        "warnings": []
+      },
+      {
+        "control_id": "17.9",
+        "control_title": "Establish Security Incident Thresholds",
+        "status": "pass",
+        "checks_performed": [
+          {
+            "check": "severity_levels_defined",
+            "passed": true,
+            "message": "Severity levels must be defined"
+          },
+          {
+            "check": "incident_vs_event_criteria",
+            "passed": true,
+            "message": "Incident vs event classification criteria should exist"
+          },
+          {
+            "check": "escalation_thresholds_set",
+            "passed": true,
+            "message": "Escalation thresholds should be set"
+          }
+        ],
+        "failures": [],
+        "warnings": []
+      }
+    ],
+    "overall_status": "warn",
+    "blocking_issues": [],
+    "warnings": [
+      "17.6: Secure communication channels should be specified",
+      "17.7: Exercise scenarios should be documented",
+      "17.7: Exercise metrics should be specified"
+    ],
+    "recommendations": [
+      "[WARNING] Consider addressing: 17.6: Secure communication channels should be specified",
+      "[WARNING] Consider addressing: 17.7: Exercise scenarios should be documented",
+      "[WARNING] Consider addressing: 17.7: Exercise metrics should be specified"
+    ],
+    "compliance_score": 77.78
+  },
+  "post_merge": {
+    "check_type": "dynamic",
+    "phase": "post_merge",
+    "timestamp": "2026-04-05T00:06:30.569383",
+    "framework": "CIS Controls v8",
+    "incident_timeline": {
+      "start_time": "2024-12-10 14:00:00+00:00",
+      "end_time": "2024-12-10 17:10:00+00:00",
+      "total_events": 10,
+      "sources": [
+        "slack"
+      ]
+    },
+    "sla_compliance": {
+      "status": "compliant",
+      "total_checks": 1,
+      "violations": 0,
+      "checks": [
+        {
+          "sla": "initial_response",
+          "required_minutes": 15,
+          "actual_minutes": 5.0,
+          "status": "met",
+          "severity": null
+        }
+      ]
+    },
+    "controls_checked": [
+      {
+        "status": "non_compliant",
+        "evidence": [],
+        "gaps": [
+          "No evidence of incident commander assignment found in timeline"
+        ],
+        "control_id": "17.1",
+        "control_title": "Designate Personnel"
+      },
+      {
+        "status": "partial",
+        "evidence": [
+          "Slack communication: 10 messages"
+        ],
+        "gaps": [
+          "No Jira ticket created for incident"
+        ],
+        "control_id": "17.3",
+        "control_title": "Incident Reporting Process"
+      },
+      {
+        "status": "partial",
+        "evidence": [
+          "Phase 'detection' activities found in timeline",
+          "Phase 'eradication' activities found in timeline"
+        ],
+        "gaps": [
+          "No evidence of 'recovery' phase activities",
+          "No evidence of 'containment' phase activities"
+        ],
+        "phases_detected": [
+          "detection",
+          "eradication"
+        ],
+        "control_id": "17.4",
+        "control_title": "IR Process Execution"
+      },
+      {
+        "status": "compliant",
+        "evidence": [
+          "Role 'management' participated in response",
+          "Role 'communications' participated in response"
+        ],
+        "gaps": [],
+        "roles_detected": [
+          "management",
+          "communications"
+        ],
+        "control_id": "17.5",
+        "control_title": "Key Roles Assigned"
+      },
+      {
+        "status": "partial",
+        "evidence": [
+          "Slack used for communication"
+        ],
+        "gaps": [
+          "Only one communication channel used"
+        ],
+        "control_id": "17.6",
+        "control_title": "Communication Mechanisms"
+      },
+      {
+        "status": "compliant",
+        "evidence": [
+          "Post-incident activity found: Great work on the quick rotation. I'll start the post-mortem doc.",
+          "Post-incident activity found: Legal team has been notified. They're reviewing the incident details."
+        ],
+        "gaps": [],
+        "control_id": "17.8",
+        "control_title": "Post-Incident Review"
+      }
+    ],
+    "compliance_score": 58.33,
+    "violations": [
+      {
+        "status": "non_compliant",
+        "evidence": [],
+        "gaps": [
+          "No evidence of incident commander assignment found in timeline"
+        ],
+        "control_id": "17.1",
+        "control_title": "Designate Personnel"
+      }
+    ],
+    "violation_count": 1,
+    "overall_status": "non_compliant",
+    "recommendations": [
+      "[17.1] No evidence of incident commander assignment found in timeline"
+    ]
+  },
+  "analysis": {
+    "status": "completed",
+    "timestamp": "2026-04-05T00:07:47.774732",
+    "framework": "CIS Controls v8",
+    "playbook": {
+      "title": "Incident Response Playbook: Database Credential Compromise",
+      "phases": [
+        "Detection Phase",
+        "Containment Phase",
+        "Investigation Phase",
+        "Eradication Phase",
+        "Recovery Phase",
+        "Post-Incident Phase"
+      ],
+      "total_steps": 10
+    },
+    "adherence": {
+      "checks": [
+        {
+          "step_id": "step_1",
+          "adherence_level": "partial",
+          "evidence": [
+            "The presence of 'Slack: 10 messages exchanged' strongly implies that a Slack channel was created and utilized for incident communication."
+          ],
+          "gaps": [
+            "There is no explicit evidence in the provided data to confirm that the alert was acknowledged.",
+            "There is no explicit evidence to confirm that an initial summary was posted within the Slack channel.",
+            "There is no explicit evidence to confirm that an incident commander was assigned.",
+            "The number of messages (10) is relatively low for an incident involving multiple required actions, suggesting that detailed logging of these specific actions might be missing."
+          ],
+          "recommendations": [
+            "Ensure that alert acknowledgment is explicitly logged or verifiable, for example, by a specific message in the incident channel or an update in the alerting system.",
+            "Require a clear initial summary message to be posted at the beginning of the incident channel, explicitly stating key details.",
+            "Mandate a clear announcement or tag in the incident channel for the assignment of the incident commander, including their name/handle.",
+            "Improve incident logging practices to explicitly record the completion of each required action within the incident response tools or channel, rather than relying on inferred activity."
+          ]
+        },
+        {
+          "step_id": "step_2",
+          "adherence_level": "none",
+          "evidence": [],
+          "gaps": [
+            "No evidence that the source of compromise was identified.",
+            "No evidence that affected systems were determined.",
+            "No evidence that the severity was classified.",
+            "No evidence that the incident ticket was updated with initial findings.",
+            "The 'Slack: 10 messages exchanged' provides no specific details to confirm completion of any required actions."
+          ],
+          "recommendations": [
+            "Ensure incident data explicitly captures the completion of required actions for each playbook step. For example, log entries or ticket updates should confirm 'Source identified as X', 'Affected systems confirmed as Y, Z', 'Severity classified as High', and 'Incident ticket #123 updated with initial findings'.",
+            "Improve logging and data collection for incident response activities. Relying solely on a count of Slack messages is insufficient to verify playbook adherence.",
+            "Integrate incident response tools (e.g., ticketing systems, SIEM, EDR) to automatically record and timestamp when specific actions (like identifying source, determining affected systems, classifying severity, and updating tickets) are performed, along with the details of those actions."
+          ]
+        },
+        {
+          "step_id": "step_3",
+          "adherence_level": "none",
+          "evidence": [
+            "The incident data summary only states 'Slack: 10 messages exchanged', which provides no specific details or confirmation of any of the required containment actions."
+          ],
+          "gaps": [
+            "There is no evidence in the provided incident data that compromised database accounts were disabled.",
+            "There is no evidence in the provided incident data that associated API keys/tokens were revoked.",
+            "There is no evidence in the provided incident data that suspicious IPs were blocked.",
+            "There is no evidence in the provided incident data that actions taken for containment, specifically revoked credentials, were documented."
+          ],
+          "recommendations": [
+            "Ensure that incident documentation explicitly captures and logs all completed actions, especially critical containment steps, including who performed them and when.",
+            "Incident data summaries should include specific details about actions taken, such as 'Database accounts X, Y disabled by DBA Team at [timestamp]' or 'API key Z revoked at [timestamp]', rather than just the volume of communication.",
+            "Train incident responders and the DBA Team to log completed playbook steps, even if they communicate them via Slack, into a structured incident log or ticket system."
+          ]
+        },
+        {
+          "step_id": "step_4",
+          "adherence_level": "none",
+          "evidence": [],
+          "gaps": [
+            "No evidence in the incident data to confirm that the need for network segmentation was assessed.",
+            "No evidence in the incident data to confirm that firewall rules were implemented to isolate affected systems.",
+            "No evidence in the incident data to confirm that the effectiveness of containment measures was verified."
+          ],
+          "recommendations": [
+            "Ensure that actions related to network segmentation assessment, firewall rule implementation, and containment verification are explicitly logged in incident tickets, chat transcripts, or other official records.",
+            "Implement a process for the Infrastructure Team to document their actions and findings for each required step of the Containment Phase.",
+            "Enhance incident data collection to include specific details, timestamps, and responsible parties for critical containment actions, rather than just message counts."
+          ]
+        },
+        {
+          "step_id": "step_5",
+          "adherence_level": "none",
+          "evidence": [],
+          "gaps": [
+            "No evidence that database access logs were pulled.",
+            "No evidence that unauthorized access was identified.",
+            "No evidence that data exfiltration was checked.",
+            "No evidence that a timeline of suspicious activities was documented.",
+            "The 'Slack: 10 messages exchanged' provides no specific information regarding the execution of any required actions for this playbook step."
+          ],
+          "recommendations": [
+            "Ensure that actions taken during an incident, especially those involving log analysis and documentation, are explicitly recorded in the incident management system or a dedicated incident journal, not just in ephemeral communication channels like Slack.",
+            "Implement a process for security analysts to log completion of specific playbook actions, including links to evidence (e.g., log analysis reports, timelines, SIEM queries).",
+            "Review incident logging procedures to ensure sufficient detail is captured to verify adherence to playbook steps."
+          ]
+        },
+        {
+          "step_id": "step_6",
+          "adherence_level": "none",
+          "evidence": [
+            "The incident data only specifies 'Slack: 10 messages exchanged'. This information does not provide any details or artifacts related to determining accessed data, assessing PII/PHI/PCI exposure, calculating affected records, or preparing an initial impact report."
+          ],
+          "gaps": [
+            "No evidence was provided to confirm that 'what data was accessed' was determined.",
+            "No evidence was provided to confirm that 'exposure of sensitive information (PII/PHI/PCI)' was assessed.",
+            "No evidence was provided to confirm that 'affected records' were calculated.",
+            "No evidence was provided to confirm that an 'initial impact report' was prepared."
+          ],
+          "recommendations": [
+            "Implement a requirement for incident responders to log specific outputs or confirmations for each required action, such as a list of accessed data, a PII/PHI/PCI assessment summary, the calculated number of affected records, and a link to the initial impact report.",
+            "Ensure that incident documentation includes summaries or links to key findings from communication channels (like Slack) if critical information is discussed there, rather than just noting message volume.",
+            "Provide specific templates or fields in the incident management system for recording the outputs of data access determination, sensitive data exposure assessment, affected record calculation, and impact report generation to ensure these steps are formally documented.",
+            "Review the incident logging process to ensure that evidence directly correlating to the completion of playbook steps is captured and easily retrievable for audit purposes."
+          ]
+        },
+        {
+          "step_id": "step_7",
+          "adherence_level": "none",
+          "evidence": [],
+          "gaps": [
+            "No evidence was found to confirm that new database credentials were generated.",
+            "No evidence was found to confirm that all applications were updated with new credentials.",
+            "No evidence was found to confirm that connectivity was tested after updating credentials.",
+            "No evidence was found to confirm that old credentials were removed from exposed locations."
+          ],
+          "recommendations": [
+            "Ensure incident data collection includes specific details about actions taken, such as timestamps, responsible parties, and confirmation of completion for each required action.",
+            "Integrate tools or processes that log credential generation, application updates, and connectivity tests (e.g., configuration management system logs, credential management system audit trails, application deployment logs).",
+            "Encourage incident responders to document specific outcomes and confirmations in the incident timeline or designated logging tool, rather than relying solely on informal chat messages.",
+            "For future incidents, ensure 'Slack: 10 messages exchanged' is supplemented with a summary of the content of those messages relevant to playbook steps, or link to the actual message transcripts if available and relevant."
+          ]
+        },
+        {
+          "step_id": "step_8",
+          "adherence_level": "none",
+          "evidence": [],
+          "gaps": [
+            "No evidence of fixing the root cause of the credential exposure was provided in the incident data.",
+            "No evidence of deploying necessary security patches was provided in the incident data.",
+            "No evidence of implementing additional safeguards like a secrets manager was provided in the incident data.",
+            "No evidence of verifying the fix was provided in the incident data.",
+            "The incident data provided (\"Slack: 10 messages exchanged\") is insufficient to determine if any of the required actions were taken by the Development Team."
+          ],
+          "recommendations": [
+            "Enhance incident logging and documentation to include specific actions taken, changes implemented, and verification steps for each playbook phase.",
+            "Ensure incident data captures details beyond just communication volume, such as links to change management tickets, commit IDs, or verification reports.",
+            "If Slack was used for coordination, consider extracting and analyzing the content of relevant messages to identify if any actions were discussed or confirmed within that communication channel (though this data was not available for this analysis)."
+          ]
+        },
+        {
+          "step_id": "step_9",
+          "adherence_level": "none",
+          "evidence": [],
+          "gaps": [
+            "No evidence was provided to confirm that database access was restored.",
+            "No evidence was provided to confirm that monitoring for anomalies occurred during the restoration process.",
+            "No evidence was provided to confirm that all systems were verified as operational.",
+            "The '10 messages exchanged' in Slack does not provide specific evidence that status was communicated to stakeholders, nor does it specify the content of the communication."
+          ],
+          "recommendations": [
+            "Implement a structured logging mechanism or incident timeline tool to explicitly record the completion of recovery actions, including timestamps and responsible parties.",
+            "Require specific updates in the incident channel or a dedicated status page confirming database access restoration and verification steps.",
+            "Ensure monitoring activities are documented, perhaps with links to dashboards or alerts that were observed/cleared.",
+            "Mandate explicit communication to stakeholders via a designated channel or tool, clearly stating the status and confirming its delivery."
+          ]
+        },
+        {
+          "step_id": "step_10",
+          "adherence_level": "none",
+          "evidence": [],
+          "gaps": [
+            "No evidence of additional monitoring alerts being implemented.",
+            "No evidence of enhanced logging being enabled for affected systems.",
+            "No evidence of anomaly detection rules being set up.",
+            "No evidence of new monitoring being documented in the runbook."
+          ],
+          "recommendations": [
+            "Ensure incident data collected includes specific evidence of technical actions taken, such as links to configuration changes, tickets for monitoring updates, or direct confirmation of logging/alerting changes.",
+            "Train Security Operations personnel to explicitly document the completion of each required action, beyond just general communication in Slack.",
+            "Improve incident logging tools to capture and categorize technical implementation details for recovery phase activities, rather than just communication volume."
+          ]
+        }
+      ],
+      "overall_score": 5.0,
+      "full_adherence": 0,
+      "partial_adherence": 1,
+      "no_adherence": 9
+    },
+    "cis_compliance": {
+      "framework": "CIS Controls v8",
+      "mappings": [
+        {
+          "framework": "cis_controls_v8",
+          "control_id": "17.1",
+          "control_title": "Designate Personnel to Manage Incident Handling",
+          "adherence_level": "partial",
+          "supporting_evidence": [
+            "Playbook analysis indicated 1 piece of evidence for personnel designation."
+          ],
+          "sla_status": "not_applicable"
+        },
+        {
+          "framework": "cis_controls_v8",
+          "control_id": "17.2",
+          "control_title": "Establish and Maintain Contact Information for Reporting Security Incidents",
+          "adherence_level": "none",
+          "supporting_evidence": [],
+          "sla_status": "not_applicable"
+        },
+        {
+          "framework": "cis_controls_v8",
+          "control_id": "17.3",
+          "control_title": "Establish and Maintain an Enterprise Process for Reporting Incidents",
+          "adherence_level": "none",
+          "supporting_evidence": [
+            "Playbook analysis indicated 1 piece of evidence for an enterprise process for reporting incidents."
+          ],
+          "sla_status": "not_applicable"
+        },
+        {
+          "framework": "cis_controls_v8",
+          "control_id": "17.4",
+          "control_title": "Establish and Maintain an Incident Response Process",
+          "adherence_level": "none",
+          "supporting_evidence": [],
+          "sla_status": "not_applicable"
+        },
+        {
+          "framework": "cis_controls_v8",
+          "control_id": "17.5",
+          "control_title": "Assign Key Roles and Responsibilities",
+          "adherence_level": "none",
+          "supporting_evidence": [],
+          "sla_status": "not_applicable"
+        },
+        {
+          "framework": "cis_controls_v8",
+          "control_id": "17.6",
+          "control_title": "Define Mechanisms for Communicating During Incident Response",
+          "adherence_level": "none",
+          "supporting_evidence": [
+            "Playbook analysis indicated 1 piece of evidence for communication mechanisms during incident response."
+          ],
+          "sla_status": "not_applicable"
+        },
+        {
+          "framework": "cis_controls_v8",
+          "control_id": "17.7",
+          "control_title": "Conduct Routine Incident Response Exercises",
+          "adherence_level": "none",
+          "supporting_evidence": [],
+          "sla_status": "not_applicable"
+        },
+        {
+          "framework": "cis_controls_v8",
+          "control_id": "17.8",
+          "control_title": "Conduct Post-Incident Reviews",
+          "adherence_level": "none",
+          "supporting_evidence": [],
+          "sla_status": "not_applicable"
+        },
+        {
+          "framework": "cis_controls_v8",
+          "control_id": "17.9",
+          "control_title": "Establish and Maintain Security Incident Thresholds",
+          "adherence_level": "none",
+          "supporting_evidence": [],
+          "sla_status": "not_applicable"
+        }
+      ],
+      "dynamic_analysis": {
+        "check_type": "dynamic",
+        "phase": "post_merge",
+        "timestamp": "2026-04-05T00:07:47.767069",
+        "framework": "CIS Controls v8",
+        "incident_timeline": {
+          "start_time": "2024-12-10 14:00:00+00:00",
+          "end_time": "2024-12-10 17:10:00+00:00",
+          "total_events": 10,
+          "sources": [
+            "slack"
+          ]
+        },
+        "sla_compliance": {
+          "status": "compliant",
+          "total_checks": 1,
+          "violations": 0,
+          "checks": [
+            {
+              "sla": "initial_response",
+              "required_minutes": 15,
+              "actual_minutes": 5.0,
+              "status": "met",
+              "severity": null
+            }
+          ]
+        },
+        "controls_checked": [
+          {
+            "status": "non_compliant",
+            "evidence": [],
+            "gaps": [
+              "No evidence of incident commander assignment found in timeline"
+            ],
+            "control_id": "17.1",
+            "control_title": "Designate Personnel"
+          },
+          {
+            "status": "partial",
+            "evidence": [
+              "Slack communication: 10 messages"
+            ],
+            "gaps": [
+              "No Jira ticket created for incident"
+            ],
+            "control_id": "17.3",
+            "control_title": "Incident Reporting Process"
+          },
+          {
+            "status": "partial",
+            "evidence": [
+              "Phase 'detection' activities found in timeline",
+              "Phase 'eradication' activities found in timeline"
+            ],
+            "gaps": [
+              "No evidence of 'recovery' phase activities",
+              "No evidence of 'containment' phase activities"
+            ],
+            "phases_detected": [
+              "detection",
+              "eradication"
+            ],
+            "control_id": "17.4",
+            "control_title": "IR Process Execution"
+          },
+          {
+            "status": "compliant",
+            "evidence": [
+              "Role 'management' participated in response",
+              "Role 'communications' participated in response"
+            ],
+            "gaps": [],
+            "roles_detected": [
+              "management",
+              "communications"
+            ],
+            "control_id": "17.5",
+            "control_title": "Key Roles Assigned"
+          },
+          {
+            "status": "partial",
+            "evidence": [
+              "Slack used for communication"
+            ],
+            "gaps": [
+              "Only one communication channel used"
+            ],
+            "control_id": "17.6",
+            "control_title": "Communication Mechanisms"
+          },
+          {
+            "status": "compliant",
+            "evidence": [
+              "Post-incident activity found: Great work on the quick rotation. I'll start the post-mortem doc.",
+              "Post-incident activity found: Legal team has been notified. They're reviewing the incident details."
+            ],
+            "gaps": [],
+            "control_id": "17.8",
+            "control_title": "Post-Incident Review"
+          }
+        ],
+        "compliance_score": 58.33,
+        "violations": [
+          {
+            "status": "non_compliant",
+            "evidence": [],
+            "gaps": [
+              "No evidence of incident commander assignment found in timeline"
+            ],
+            "control_id": "17.1",
+            "control_title": "Designate Personnel"
+          }
+        ],
+        "violation_count": 1,
+        "overall_status": "non_compliant",
+        "recommendations": [
+          "[17.1] No evidence of incident commander assignment found in timeline"
+        ]
+      }
+    },
+    "incident_data": {
+      "slack_available": true,
+      "jira_available": true,
+      "github_available": false
+    },
+    "recommendations": [
+      "[17.1] No evidence of incident commander assignment found in timeline",
+      "WARNING: 9 playbook step(s) were not followed. Review and implement automation for these steps.",
+      "INFO: 1 playbook step(s) were partially followed. Consider adding clearer guidelines and checklists.",
+      "GAP: No evidence that database access logs were pulled.",
+      "GAP: The incident data provided (\"Slack: 10 messages exchanged\") is insufficient to determine if any of the required actions were taken by the Development Team.",
+      "GAP: No evidence was found to confirm that connectivity was tested after updating credentials.",
+      "CIS COMPLIANCE: Controls requiring attention: 17.1, 17.2, 17.3, 17.4, 17.5"
+    ]
+  }
+}
