@@ -5,51 +5,157 @@
     {
       "type": "message",
       "user": "U01ABC123",
-      "text": "Database outage detected - prod DB not responding",
-      "ts": "1640000000.123456"
-    },
-    {
-      "type": "message",
-      "user": "U02DEF456",
-      "text": "Creating Jira ticket INC-789",
-      "ts": "1640000060.234567"
+      "username": "alice-sre",
+      "text": "🚨 Database outage detected - prod DB not responding. Monitoring alert triggered.",
+      "ts": "1640000000.123456",
+      "timestamp": "2024-01-15T10:00:00Z"
     },
     {
       "type": "message",
       "user": "U01ABC123",
-      "text": "Checking logs now - seeing connection timeout errors",
-      "ts": "1640000120.345678"
+      "username": "alice-sre",
+      "text": "Verified manually - getting connection timeout errors. This is a P0 incident.",
+      "ts": "1640000090.234567",
+      "timestamp": "2024-01-15T10:01:30Z"
+    },
+    {
+      "type": "message",
+      "user": "U02DEF456",
+      "username": "bob-dba",
+      "text": "Creating Jira ticket INC-789 for tracking",
+      "ts": "1640000180.345678",
+      "timestamp": "2024-01-15T10:03:00Z"
     },
     {
       "type": "message",
       "user": "U03GHI789",
-      "text": "I'll be incident commander for this",
-      "ts": "1640000180.456789"
-    },
-    {
-      "type": "message",
-      "user": "U02DEF456",
-      "text": "Attempting failover to replica database",
-      "ts": "1640000300.567890"
-    },
-    {
-      "type": "message",
-      "user": "U02DEF456",
-      "text": "Failover successful - monitoring recovery",
-      "ts": "1640000420.678901"
+      "username": "charlie-ic",
+      "text": "I'll be incident commander for this. @channel Engineering, Product, Support teams notified.",
+      "ts": "1640000240.456789",
+      "timestamp": "2024-01-15T10:04:00Z"
     },
     {
       "type": "message",
       "user": "U01ABC123",
-      "text": "All services back online, running tests",
-      "ts": "1640000540.789012"
+      "username": "alice-sre",
+      "text": "Checking database logs - seeing connection pool exhaustion errors. All connections maxed out.",
+      "ts": "1640000360.567890",
+      "timestamp": "2024-01-15T10:06:00Z"
+    },
+    {
+      "type": "message",
+      "user": "U02DEF456",
+      "username": "bob-dba",
+      "text": "Reviewing recent deployments. API v2.3 deployed 2 hours ago, might be related.",
+      "ts": "1640000540.678901",
+      "timestamp": "2024-01-15T10:09:00Z"
+    },
+    {
+      "type": "message",
+      "user": "U01ABC123",
+      "username": "alice-sre",
+      "text": "CPU at 95%, memory normal. Definitely connection pool issue.",
+      "ts": "1640000660.789012",
+      "timestamp": "2024-01-15T10:11:00Z"
+    },
+    {
+      "type": "message",
+      "user": "U02DEF456",
+      "username": "bob-dba",
+      "text": "Starting mitigation - attempting failover to replica database",
+      "ts": "1640001200.890123",
+      "timestamp": "2024-01-15T10:20:00Z"
+    },
+    {
+      "type": "message",
+      "user": "U02DEF456",
+      "username": "bob-dba",
+      "text": "Failover successful! Also increased connection timeout from 30s to 120s. Services recovering.",
+      "ts": "1640001500.901234",
+      "timestamp": "2024-01-15T10:25:00Z"
+    },
+    {
+      "type": "message",
+      "user": "U04JKL012",
+      "username": "dana-qa",
+      "text": "Running validation tests on critical workflows",
+      "ts": "1640001800.012345",
+      "timestamp": "2024-01-15T10:30:00Z"
+    },
+    {
+      "type": "message",
+      "user": "U04JKL012",
+      "username": "dana-qa",
+      "text": "All services operational. Login, checkout, API endpoints all working.",
+      "ts": "1640002200.123456",
+      "timestamp": "2024-01-15T10:36:40Z"
+    },
+    {
+      "type": "message",
+      "user": "U01ABC123",
+      "username": "alice-sre",
+      "text": "Data integrity check passed. No data loss detected.",
+      "ts": "2024-01-15T10:42:00Z",
+      "timestamp": "2024-01-15T10:42:00Z"
     },
     {
       "type": "message",
       "user": "U03GHI789",
-      "text": "Incident resolved. Will schedule post-mortem tomorrow 2pm",
-      "ts": "1640000660.890123"
+      "username": "charlie-ic",
+      "text": "Incident resolved ✅. Total duration: 42 minutes. Will schedule post-mortem for tomorrow 2pm.",
+      "ts": "1640002680.234567",
+      "timestamp": "2024-01-15T10:44:40Z"
+    },
+    {
+      "type": "message",
+      "user": "U03GHI789",
+      "username": "charlie-ic",
+      "text": "Updating Jira ticket with complete timeline and resolution notes.",
+      "ts": "1640003400.345678",
+      "timestamp": "2024-01-15T10:56:40Z"
     }
   ],
-  "participants": ["U01ABC123", "U02DEF456", "U03GHI789"]
+  "participants": ["U01ABC123", "U02DEF456", "U03GHI789", "U04JKL012"],
+  "timeline": [
+    {
+      "timestamp": "2024-01-15T10:00:00Z",
+      "user": "alice-sre",
+      "action": "Detected database outage via monitoring"
+    },
+    {
+      "timestamp": "2024-01-15T10:01:30Z",
+      "user": "alice-sre",
+      "action": "Verified alert and classified as P0"
+    },
+    {
+      "timestamp": "2024-01-15T10:03:00Z",
+      "user": "bob-dba",
+      "action": "Created Jira ticket INC-789"
+    },
+    {
+      "timestamp": "2024-01-15T10:04:00Z",
+      "user": "charlie-ic",
+      "action": "Established incident commander, notified stakeholders"
+    },
+    {
+      "timestamp": "2024-01-15T10:20:00Z",
+      "user": "bob-dba",
+      "action": "Initiated failover to replica"
+    },
+    {
+      "timestamp": "2024-01-15T10:25:00Z",
+      "user": "bob-dba",
+      "action": "Failover complete, increased timeout config"
+    },
+    {
+      "timestamp": "2024-01-15T10:36:40Z",
+      "user": "dana-qa",
+      "action": "Verified all services operational"
+    },
+    {
+      "timestamp": "2024-01-15T10:44:40Z",
+      "user": "charlie-ic",
+      "action": "Declared incident resolved"
+    }
+  ]
 }

@@ -143,11 +143,29 @@ class IncidentTrailAgent(BaseAgent):
         if github_repo and self.github_client and self.github_client.is_configured() and not github_events_raw:
             try:
                 self.log(f"Collecting GitHub data from repo: {github_repo}")
-                github_data = await self.github_client.parse_repo_for_incident(github_repo)
+                
+                # Extract time range from input if provided
+                since = input_data.get("incident_start")
+                until = input_data.get("incident_end")
+                branch = input_data.get("github_branch")
+                
+                github_data = await self.github_client.parse_repo_for_incident(
+                    github_repo,
+                    since=since,
+                    until=until,
+                    branch=branch
+                )
+                
                 incident_data["github_events"] = github_data.get("events", [])
                 incident_data["github_prs"] = github_data.get("pull_requests", [])
                 incident_data["github_incident_prs"] = github_data.get("incident_prs", [])
-                self.log(f"Collected {len(incident_data['github_events'])} GitHub events")
+                incident_data["github_commits"] = github_data.get("commits", [])
+                incident_data["github_incident_commits"] = github_data.get("incident_commits", [])
+                incident_data["github_timeline"] = github_data.get("timeline", [])
+                
+                self.log(f"Collected {len(incident_data.get('github_commits', []))} commits, "
+                        f"{len(incident_data.get('github_prs', []))} PRs, "
+                        f"{len(incident_data.get('github_events', []))} events")
             except Exception as e:
                 self.log(f"Failed to collect GitHub data: {e}", level="error")
         elif github_repo:

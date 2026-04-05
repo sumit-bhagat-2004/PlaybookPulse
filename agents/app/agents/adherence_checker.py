@@ -129,30 +129,85 @@ Be specific and reference actual data from the incident."""
         )
     
     def _prepare_incident_summary(self, incident_data: Dict[str, Any]) -> str:
-        """Prepare a summary of incident data for analysis"""
+        """Prepare a detailed summary of incident data for analysis"""
         summary_parts = []
         
-        # Slack data
+        # Slack data - include actual messages
         slack_messages = incident_data.get("slack_messages", [])
         if slack_messages:
-            summary_parts.append(f"Slack: {len(slack_messages)} messages exchanged")
-            if incident_data.get("slack_timeline"):
-                summary_parts.append(f"Timeline: {len(incident_data['slack_timeline'])} events")
+            summary_parts.append(f"\n=== SLACK COMMUNICATION ({len(slack_messages)} messages) ===")
+            for msg in slack_messages[:10]:  # Include first 10 messages
+                timestamp = msg.get("timestamp", msg.get("ts", "unknown"))
+                user = msg.get("username", msg.get("user", "unknown"))
+                text = msg.get("text", "")
+                summary_parts.append(f"[{timestamp}] {user}: {text}")
+            if len(slack_messages) > 10:
+                summary_parts.append(f"... and {len(slack_messages) - 10} more messages")
         
-        # Jira data
+        # Slack timeline
+        slack_timeline = incident_data.get("slack_timeline", [])
+        if slack_timeline:
+            summary_parts.append(f"\n=== SLACK TIMELINE ({len(slack_timeline)} events) ===")
+            for event in slack_timeline[:8]:
+                timestamp = event.get("timestamp", "unknown")
+                user = event.get("user", "unknown")
+                action = event.get("action", "unknown")
+                summary_parts.append(f"[{timestamp}] {user}: {action}")
+        
+        # Jira data - include issue and comments
         jira_issue = incident_data.get("jira_issue", {})
         if jira_issue:
-            summary_parts.append(f"Jira: Ticket {jira_issue.get('key')} - {jira_issue.get('status')}")
-            jira_comments = incident_data.get("jira_comments", [])
-            if jira_comments:
-                summary_parts.append(f"Jira Comments: {len(jira_comments)} updates")
+            summary_parts.append(f"\n=== JIRA TICKET ===")
+            summary_parts.append(f"Key: {jira_issue.get('key', 'unknown')}")
+            summary_parts.append(f"Status: {jira_issue.get('status', 'unknown')}")
+            summary_parts.append(f"Priority: {jira_issue.get('priority', 'unknown')}")
+            summary_parts.append(f"Created: {jira_issue.get('created', 'unknown')}")
+            summary_parts.append(f"Summary: {jira_issue.get('summary', 'unknown')}")
         
-        # GitHub data
+        jira_comments = incident_data.get("jira_comments", [])
+        if jira_comments:
+            summary_parts.append(f"\n=== JIRA COMMENTS ({len(jira_comments)} comments) ===")
+            for comment in jira_comments[:5]:
+                author = comment.get("author", "unknown")
+                body = comment.get("body", "")[:100]
+                created = comment.get("created", "unknown")
+                summary_parts.append(f"[{created}] {author}: {body}")
+        
+        # GitHub data - include commits
+        github_commits = incident_data.get("github_commits", [])
+        if github_commits:
+            summary_parts.append(f"\n=== GITHUB COMMITS ({len(github_commits)} commits) ===")
+            for commit in github_commits:
+                sha = commit.get("sha", "unknown")[:8]
+                author = commit.get("author", {}).get("username", "unknown")
+                message = commit.get("message", "").split('\n')[0][:80]
+                date = commit.get("date", "unknown")
+                files = len(commit.get("files_changed", []))
+                summary_parts.append(f"[{date}] {author} ({sha}): {message}")
+                summary_parts.append(f"  Files changed: {files}, +{commit.get('stats', {}).get('additions', 0)} -{commit.get('stats', {}).get('deletions', 0)}")
+        
+        # GitHub PRs
+        github_prs = incident_data.get("github_prs", [])
+        if github_prs:
+            summary_parts.append(f"\n=== GITHUB PULL REQUESTS ({len(github_prs)} PRs) ===")
+            for pr in github_prs[:3]:
+                number = pr.get("number", "unknown")
+                title = pr.get("title", "unknown")
+                state = pr.get("state", "unknown")
+                author = pr.get("author", "unknown")
+                summary_parts.append(f"PR #{number}: {title} ({state}) by {author}")
+        
+        # GitHub events
         github_events = incident_data.get("github_events", [])
-        if github_events:
-            summary_parts.append(f"GitHub: {len(github_events)} events")
-            incident_prs = incident_data.get("github_incident_prs", [])
-            if incident_prs:
-                summary_parts.append(f"Incident PRs: {len(incident_prs)}")
+        if github_events and isinstance(github_events, list):
+            summary_parts.append(f"\n=== GITHUB EVENTS ({len(github_events)} events) ===")
+            for event in github_events[:5]:
+                event_type = event.get("type", "unknown")
+                actor = event.get("actor", "unknown")
+                created = event.get("created_at", "unknown")
+                summary_parts.append(f"[{created}] {actor}: {event_type}")
         
-        return "\n".join(summary_parts) if summary_parts else "No incident data available"
+        if not summary_parts:
+            return "No incident data available"
+        
+        return "\n".join(summary_parts)
