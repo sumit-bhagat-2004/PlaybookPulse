@@ -17,8 +17,11 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import AdherenceGrid from "@/components/AdherenceGrid";
 import ComplianceDetailPanel from "@/components/ComplianceDetailPanel";
+import LogsPanel from "@/components/LogsPanel";
+import SlackPanel from "@/components/SlackPanel";
 import { listAnalyses, checkHealth, downloadReport } from "@/lib/api";
 import { AGENTS_WS } from "@/lib/constants";
+import { useAnalysisLogs, type LogEntry } from "@/lib/hooks/useAnalysisLogs";
 
 interface Analysis {
   analysis_id: string;
@@ -44,7 +47,17 @@ interface Analysis {
   }>;
   overall_score?: number;
   created_at?: string;
+  slack_thread_id?: string;
+  slack_messages?: Array<{
+    user: string;
+    username?: string;
+    ts: string;
+    text: string;
+    reactions?: string[];
+  }>;
 }
+
+type TabType = "compliance" | "logs" | "slack";
 
 const DashboardPage = () => {
   const [mounted, setMounted] = useState(false);
@@ -56,6 +69,26 @@ const DashboardPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>("compliance");
+
+  // Log management
+  const {
+    logs,
+    filteredLogs,
+    filteredLevel,
+    setFilteredLevel,
+    addLog,
+    clearLogs,
+    logsEndRef,
+    containerRef,
+  } = useAnalysisLogs();
+
+  // Slack data state
+  const [slackMessages, setSlackMessages] = useState<
+    Analysis["slack_messages"]
+  >([]);
+  const [slackLoading, setSlackLoading] = useState(false);
+  const [slackParticipantCount, setSlackParticipantCount] = useState(0);
 
   // Hydration fix
   useEffect(() => {
@@ -135,6 +168,25 @@ const DashboardPage = () => {
       try {
         const message = JSON.parse(event.data);
 
+        // Handle log messages
+        if (
+          message.type === "log" &&
+          message.analysis_id === selectedAnalysis.analysis_id
+        ) {
+          addLog(message as LogEntry);
+        }
+
+        // Handle Slack messages
+        if (
+          message.type === "slack_messages" &&
+          message.analysis_id === selectedAnalysis.analysis_id
+        ) {
+          setSlackMessages(message.messages || []);
+          setSlackParticipantCount(message.participant_count || 0);
+          setSlackLoading(false);
+        }
+
+        // Handle analysis updates
         if (message.analysis_id === selectedAnalysis.analysis_id) {
           setSelectedAnalysis((prev) =>
             prev
@@ -155,13 +207,43 @@ const DashboardPage = () => {
       }
     };
 
-    ws.onopen = () => console.log("WS connected");
+    ws.onopen = () => {
+      console.log("WS connected");
+      // Subscribe to analysis updates and logs
+      ws.send(
+        JSON.stringify({
+          type: "subscribe",
+          analysis_id: selectedAnalysis.analysis_id,
+        }),
+      );
+      // Request Slack messages
+      setSlackLoading(true);
+      ws.send(
+        JSON.stringify({
+          type: "get_slack_messages",
+          analysis_id: selectedAnalysis.analysis_id,
+        }),
+      );
+    };
+
     ws.onmessage = handleMessage;
     ws.onerror = (err) => console.error("WS error:", err);
     ws.onclose = () => console.log("WS closed");
 
-    return () => ws.close();
-  }, [mounted, selectedAnalysis?.analysis_id]);
+    return () => {
+      ws.send(JSON.stringify({ type: "unsubscribe" }));
+      ws.close();
+    };
+  }, [mounted, selectedAnalysis?.analysis_id, addLog]);
+
+  // Clear logs when changing analysis
+  useEffect(() => {
+    if (selectedAnalysis?.analysis_id) {
+      clearLogs();
+      setSlackMessages([]);
+      setSlackParticipantCount(0);
+    }
+  }, [selectedAnalysis?.analysis_id, clearLogs]);
 
   if (!mounted) return null;
 
@@ -302,6 +384,7 @@ const DashboardPage = () => {
                     onClick={() => {
                       setSelectedAnalysis(analysis);
                       setSelectedStep(null);
+                      setActiveTab("compliance");
                     }}
                     className={`w-full p-3 text-left rounded-lg border transition-all ${
                       selectedAnalysis?.analysis_id === analysis.analysis_id
@@ -336,125 +419,170 @@ const DashboardPage = () => {
             {/* Main Analysis View */}
             {selectedAnalysis && (
               <div className="lg:col-span-3 space-y-6">
-                {/* Score Card */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="rounded-lg border border-white/10 bg-white/5 p-6"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5 text-blue-400" />
-                      Compliance Score
-                    </h2>
-                    <div className="flex items-center gap-4">
-                      {selectedAnalysis.overall_score && (
-                        <div className="text-4xl font-bold text-emerald-400">
-                          {(selectedAnalysis.overall_score * 100).toFixed(0)}%
-                        </div>
-                      )}
-                      <button
-                        onClick={handleDownloadReport}
-                        disabled={selectedAnalysis.status !== "completed"}
-                        className="p-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 disabled:opacity-50 transition"
-                        title="Download PDF Report"
-                      >
-                        <Download className="h-5 w-5 text-blue-400" />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-emerald-500 to-blue-500 transition-all"
-                      style={{
-                        width: `${(selectedAnalysis.overall_score || 0) * 100}%`,
-                      }}
-                    />
-                  </div>
-                </motion.div>
+                {/* Tabs */}
+                <div className="flex gap-2">
+                  {(["compliance", "logs", "slack"] as const).map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={`px-4 py-2 rounded-lg font-medium transition ${
+                        activeTab === tab
+                          ? "bg-blue-500/30 border border-blue-500/50 text-blue-300"
+                          : "bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10"
+                      }`}
+                    >
+                      {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                    </button>
+                  ))}
+                </div>
 
-                {/* Adherence Steps */}
-                {adherenceSteps.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="rounded-lg border border-white/10 bg-white/5 p-6"
-                  >
-                    <h2 className="text-lg font-semibold text-white mb-4">
-                      Adherence Tracking
-                    </h2>
-                    <AdherenceGrid
-                      steps={adherenceSteps}
-                      selectedStepId={selectedStep?.id}
-                      onStepClick={setSelectedStep}
-                    />
-                  </motion.div>
+                {/* Tab Content */}
+                {activeTab === "compliance" && (
+                  <div className="space-y-6">
+                    {/* Score Card */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="rounded-lg border border-white/10 bg-white/5 p-6"
+                    >
+                      <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                          <TrendingUp className="h-5 w-5 text-blue-400" />
+                          Compliance Score
+                        </h2>
+                        <div className="flex items-center gap-4">
+                          {selectedAnalysis.overall_score && (
+                            <div className="text-4xl font-bold text-emerald-400">
+                              {(selectedAnalysis.overall_score * 100).toFixed(
+                                0,
+                              )}
+                              %
+                            </div>
+                          )}
+                          <button
+                            onClick={handleDownloadReport}
+                            disabled={selectedAnalysis.status !== "completed"}
+                            className="p-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 disabled:opacity-50 transition"
+                            title="Download PDF Report"
+                          >
+                            <Download className="h-5 w-5 text-blue-400" />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-emerald-500 to-blue-500 transition-all"
+                          style={{
+                            width: `${(selectedAnalysis.overall_score || 0) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    </motion.div>
+
+                    {/* Adherence Steps */}
+                    {adherenceSteps.length > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="rounded-lg border border-white/10 bg-white/5 p-6"
+                      >
+                        <h2 className="text-lg font-semibold text-white mb-4">
+                          Adherence Tracking
+                        </h2>
+                        <AdherenceGrid
+                          steps={adherenceSteps}
+                          selectedStepId={selectedStep?.id}
+                          onStepClick={setSelectedStep}
+                        />
+                      </motion.div>
+                    )}
+
+                    {/* Compliance Frameworks */}
+                    {Object.entries(complianceFrameworks).length > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="rounded-lg border border-white/10 bg-white/5 p-6"
+                      >
+                        <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                          <Shield className="h-5 w-5 text-blue-400" />
+                          Compliance Frameworks
+                        </h2>
+                        <div className="space-y-4">
+                          {Object.entries(complianceFrameworks).map(
+                            ([framework, data]) => (
+                              <div
+                                key={framework}
+                                className="border border-white/10 rounded-lg p-4"
+                              >
+                                <div className="flex items-center justify-between mb-3">
+                                  <h3 className="font-semibold text-white capitalize">
+                                    {framework.replace(/_/g, " ")}
+                                  </h3>
+                                  <span
+                                    className={`text-sm font-bold px-3 py-1 rounded ${
+                                      data.adherenceLevel === "full"
+                                        ? "bg-emerald-500/20 text-emerald-400"
+                                        : data.adherenceLevel === "partial"
+                                          ? "bg-amber-500/20 text-amber-400"
+                                          : "bg-rose-500/20 text-rose-400"
+                                    }`}
+                                  >
+                                    {data.adherenceLevel.toUpperCase()}
+                                  </span>
+                                </div>
+                                <div className="space-y-2">
+                                  {data.controls.slice(0, 3).map((control) => (
+                                    <div
+                                      key={control.id}
+                                      className="text-sm p-2 bg-white/5 rounded"
+                                    >
+                                      <div className="flex items-center justify-between mb-1">
+                                        <span className="font-mono text-cyan-400 text-xs">
+                                          {control.id}
+                                        </span>
+                                        <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                                      </div>
+                                      <p className="text-slate-300 text-xs">
+                                        {control.title}
+                                      </p>
+                                    </div>
+                                  ))}
+                                  {data.controls.length > 3 && (
+                                    <p className="text-xs text-slate-500 pt-2">
+                                      +{data.controls.length - 3} more controls
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            ),
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </div>
                 )}
 
-                {/* Compliance Frameworks */}
-                {Object.entries(complianceFrameworks).length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="rounded-lg border border-white/10 bg-white/5 p-6"
-                  >
-                    <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                      <Shield className="h-5 w-5 text-blue-400" />
-                      Compliance Frameworks
-                    </h2>
-                    <div className="space-y-4">
-                      {Object.entries(complianceFrameworks).map(
-                        ([framework, data]) => (
-                          <div
-                            key={framework}
-                            className="border border-white/10 rounded-lg p-4"
-                          >
-                            <div className="flex items-center justify-between mb-3">
-                              <h3 className="font-semibold text-white capitalize">
-                                {framework.replace(/_/g, " ")}
-                              </h3>
-                              <span
-                                className={`text-sm font-bold px-3 py-1 rounded ${
-                                  data.adherenceLevel === "full"
-                                    ? "bg-emerald-500/20 text-emerald-400"
-                                    : data.adherenceLevel === "partial"
-                                      ? "bg-amber-500/20 text-amber-400"
-                                      : "bg-rose-500/20 text-rose-400"
-                                }`}
-                              >
-                                {data.adherenceLevel.toUpperCase()}
-                              </span>
-                            </div>
-                            <div className="space-y-2">
-                              {data.controls.slice(0, 3).map((control) => (
-                                <div
-                                  key={control.id}
-                                  className="text-sm p-2 bg-white/5 rounded"
-                                >
-                                  <div className="flex items-center justify-between mb-1">
-                                    <span className="font-mono text-cyan-400 text-xs">
-                                      {control.id}
-                                    </span>
-                                    <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                                  </div>
-                                  <p className="text-slate-300 text-xs">
-                                    {control.title}
-                                  </p>
-                                </div>
-                              ))}
-                              {data.controls.length > 3 && (
-                                <p className="text-xs text-slate-500 pt-2">
-                                  +{data.controls.length - 3} more controls
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        ),
-                      )}
-                    </div>
-                  </motion.div>
+                {activeTab === "logs" && (
+                  <LogsPanel
+                    logs={filteredLogs}
+                    filteredLevel={filteredLevel}
+                    onFilterChange={setFilteredLevel}
+                    onClear={clearLogs}
+                    containerRef={containerRef}
+                    logsEndRef={logsEndRef}
+                  />
+                )}
+
+                {activeTab === "slack" && (
+                  <SlackPanel
+                    messages={slackMessages}
+                    participantCount={slackParticipantCount}
+                    threadId={selectedAnalysis.slack_thread_id}
+                    loading={slackLoading}
+                  />
                 )}
               </div>
             )}
