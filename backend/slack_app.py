@@ -147,7 +147,7 @@ def handle_playbook_command(ack, respond, command, client):
                     print(f"⚠️ Failed to load fixtures: {e}")
                     traceback.print_exc()
             
-            # Run the multi-agent analysis
+            # Run the multi-agent analysis (CIS ONLY)
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             
@@ -155,9 +155,9 @@ def handle_playbook_command(ack, respond, command, client):
                 agents_bridge.analyze_incident(
                     playbook_content=playbook_content,
                     slack_thread_data=slack_data,
-                    jira_ticket_data=jira_data,       # <-- Now passing Jira data
-                    github_events=github_data,        # <-- Now passing GitHub data
-                    compliance_frameworks=["nist_sp_800_61", "soc2_cc7"]
+                    jira_ticket_data=jira_data,
+                    github_events=github_data,
+                    compliance_frameworks=["cis_controls_v8"]  # CIS ONLY
                 )
             )
             loop.close()
@@ -205,16 +205,25 @@ def handle_playbook_command(ack, respond, command, client):
             if score == 0 and not has_data:
                 rec_text = "⚠️ *Note:* Score is 0% because no incident data was found to compare against the playbook. To get accurate compliance scores, run this command on a Slack thread with incident discussion, or provide JIRA ticket and GitHub event data.\n\n" + rec_text
             
-            # Build compliance section
-            compliance = result.get("compliance", {})
-            frameworks = compliance.get("frameworks_analyzed", [])
+            # Get CIS compliance details
+            cis_compliance = result.get("cis_compliance", {})
+            cis_score = 0
+            sla_status = "N/A"
+            
+            if cis_compliance:
+                dynamic = cis_compliance.get("dynamic_analysis", {})
+                if dynamic:
+                    cis_score = dynamic.get("compliance_score", 0)
+                    sla = dynamic.get("sla_compliance", {})
+                    sla_violations = sla.get("violations", 0)
+                    sla_status = "✅ Met" if sla_violations == 0 else f"⚠️ {sla_violations} violation(s)"
             
             blocks = [
                 {
                     "type": "header",
                     "text": {
                         "type": "plain_text",
-                        "text": "📊 PlaybookPulse Analysis Complete",
+                        "text": "📊 CIS Controls v8 Compliance Analysis",
                         "emoji": True
                     }
                 },
@@ -223,11 +232,11 @@ def handle_playbook_command(ack, respond, command, client):
                     "fields": [
                         {
                             "type": "mrkdwn",
-                            "text": f"*Compliance Score:*\n{score_emoji} {score:.1f}%"
+                            "text": f"*Playbook Adherence:*\n{score_emoji} {score:.1f}%"
                         },
                         {
                             "type": "mrkdwn",
-                            "text": f"*Repository:*\n`{repo_name}`"
+                            "text": f"*CIS Control 17 Score:*\n{cis_score:.1f}%"
                         }
                     ]
                 },
@@ -240,7 +249,7 @@ def handle_playbook_command(ack, respond, command, client):
                         },
                         {
                             "type": "mrkdwn",
-                            "text": f"*Steps Partially Followed:* ⚠️ {partial}"
+                            "text": f"*Steps Partial:* ⚠️ {partial}"
                         },
                         {
                             "type": "mrkdwn",
@@ -248,7 +257,16 @@ def handle_playbook_command(ack, respond, command, client):
                         },
                         {
                             "type": "mrkdwn",
-                            "text": f"*Frameworks Analyzed:* {len(frameworks)}"
+                            "text": f"*SLA Status:* {sla_status}"
+                        }
+                    ]
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"🎯 Framework: *CIS Controls v8* (Control 17 - Incident Response) | Repository: `{repo_name}`"
                         }
                     ]
                 },
@@ -267,39 +285,38 @@ def handle_playbook_command(ack, respond, command, client):
                     "elements": [
                         {
                             "type": "mrkdwn",
-                            "text": f"Analysis completed at {result.get('timestamp', 'N/A')} | Frameworks: {', '.join(frameworks)}"
+                            "text": f"Analysis completed at {result.get('timestamp', 'N/A')}"
                         }
                     ]
                 }
             ]
             
-            # Add action buttons if GitHub is configured
-            if settings.has_github_credentials:
-                blocks.append({
-                    "type": "actions",
-                    "elements": [
-                        {
-                            "type": "button",
-                            "text": {
-                                "type": "plain_text",
-                                "text": "🔧 Create Remediation PR",
-                                "emoji": True
-                            },
-                            "style": "primary",
-                            "action_id": "create_pr",
-                            "value": repo_name
+            # Add action buttons
+            blocks.append({
+                "type": "actions",
+                "elements": [
+                    {
+                        "type": "button",
+                        "text": {
+                            "type": "plain_text",
+                            "text": "🔧 Create Remediation PR",
+                            "emoji": True
                         },
-                        {
-                            "type": "button",
-                            "text": {
-                                "type": "plain_text",
-                                "text": "📄 Download Report",
-                                "emoji": True
-                            },
-                            "action_id": "download_report"
-                        }
-                    ]
-                })
+                        "style": "primary",
+                        "action_id": "create_pr",
+                        "value": repo_name
+                    },
+                    {
+                        "type": "button",
+                        "text": {
+                            "type": "plain_text",
+                            "text": "📄 Download CIS Report",
+                            "emoji": True
+                        },
+                        "action_id": "download_report"
+                    }
+                ]
+            })
             
             client.chat_postMessage(
                 channel=channel_id,
@@ -327,7 +344,7 @@ slack_handler = SlackRequestHandler(app)
 
 
 # Import PDF generator
-from pdf_generator import generate_compliance_pdf, generate_quick_summary_pdf
+from pdf_generator import generate_compliance_pdf, generate_quick_summary_pdf, generate_cis_compliance_pdf
 
 
 # Button action handlers
@@ -463,11 +480,10 @@ def handle_download_report(ack, body, client):
                 print(f"[PDF] Cache hit: {analysis_result is not None}")
                 
                 if analysis_result:
-                    # Generate full PDF with actual data
-                    pdf_path = generate_compliance_pdf(
+                    # Generate CIS-specific PDF with actual data
+                    pdf_path = generate_cis_compliance_pdf(
                         analysis_result=analysis_result,
-                        incident_id=incident_id,
-                        output_filename=f"playbookpulse_report_{incident_id}.pdf"
+                        incident_id=incident_id
                     )
                 else:
                     # Fallback: Generate quick summary
@@ -477,13 +493,13 @@ def handle_download_report(ack, body, client):
                         partial=0,
                         missed=10,
                         recommendations=[
-                            "10 playbook step(s) were not followed. Review and implement automation for these steps.",
-                            "Gap identified: It is impossible to determine if old credentials were removed from any exposed locations.",
-                            "Gap identified: Lack of documentation or collection of database access logs during the incident.",
-                            "Gap identified: No documented timeline of suspicious activities was provided."
+                            "No analysis data found. Run /playbookpulse first.",
+                            "CIS Control 17.3: Initial response SLA may not be met.",
+                            "CIS Control 17.5: Ensure incident commander is assigned within 15 minutes.",
+                            "CIS Control 17.8: Schedule post-incident review within 48 hours."
                         ],
                         incident_id=incident_id,
-                        output_filename=f"playbookpulse_report_{incident_id}.pdf"
+                        output_filename=f"playbookpulse_cis_report_{incident_id}.pdf"
                     )
                 
                 # Upload PDF to Slack
@@ -491,9 +507,9 @@ def handle_download_report(ack, body, client):
                     client.files_upload_v2(
                         channel=channel_id,
                         file=f,
-                        filename=f"PlaybookPulse_Report_{incident_id}.pdf",
-                        title="PlaybookPulse Compliance Report",
-                        initial_comment=f"📄 Here's your compliance report for incident {incident_id}"
+                        filename=f"PlaybookPulse_CIS_Report_{incident_id}.pdf",
+                        title="PlaybookPulse CIS Controls v8 Compliance Report",
+                        initial_comment=f"📄 Here's your CIS Controls v8 compliance report for incident {incident_id}"
                     )
                 
                 # Clean up the file

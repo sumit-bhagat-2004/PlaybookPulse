@@ -332,3 +332,276 @@ def generate_quick_summary_pdf(
     
     doc.build(story)
     return str(output_path.absolute())
+
+
+def generate_cis_compliance_pdf(
+    analysis_result: Dict[str, Any],
+    incident_id: str = "UNKNOWN",
+    output_filename: str = None
+) -> str:
+    """
+    Generates CIS Controls v8 specific compliance report PDF.
+    
+    Args:
+        analysis_result: The full CIS analysis result
+        incident_id: Incident identifier
+        output_filename: Name of the PDF file (auto-generated if not provided)
+        
+    Returns:
+        Absolute path to the generated PDF
+    """
+    output_dir = Path(__file__).parent / "reports"
+    output_dir.mkdir(exist_ok=True)
+    
+    if not output_filename:
+        output_filename = f"cis_compliance_report_{incident_id}.pdf"
+    
+    output_path = output_dir / output_filename
+    
+    doc = SimpleDocTemplate(
+        str(output_path),
+        pagesize=letter,
+        rightMargin=72,
+        leftMargin=72,
+        topMargin=72,
+        bottomMargin=18
+    )
+    
+    styles = getSampleStyleSheet()
+    
+    # Custom styles
+    title_style = ParagraphStyle(
+        'CISTitle',
+        parent=styles['Heading1'],
+        fontSize=24,
+        textColor=colors.HexColor("#1e3a5f"),
+        spaceAfter=30,
+        alignment=TA_CENTER
+    )
+    
+    heading_style = ParagraphStyle(
+        'CISHeading',
+        parent=styles['Heading2'],
+        fontSize=16,
+        textColor=colors.HexColor("#1e3a5f"),
+        spaceAfter=12,
+        spaceBefore=12
+    )
+    
+    subheading_style = ParagraphStyle(
+        'CISSubheading',
+        parent=styles['Heading3'],
+        fontSize=12,
+        textColor=colors.HexColor("#374151"),
+        spaceAfter=8
+    )
+    
+    story = []
+    
+    # ============ TITLE PAGE ============
+    story.append(Paragraph("CIS Controls v8", title_style))
+    story.append(Paragraph("Incident Response Compliance Report", styles['Heading2']))
+    story.append(Spacer(1, 0.2*inch))
+    story.append(Paragraph("Control 17: Incident Response Management", subheading_style))
+    story.append(Spacer(1, 0.5*inch))
+    
+    # Metadata
+    generated_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC")
+    adherence = analysis_result.get("adherence", {})
+    score = adherence.get("overall_score", 0)
+    
+    cis_compliance = analysis_result.get("cis_compliance", {})
+    cis_score = 0
+    if cis_compliance:
+        dynamic = cis_compliance.get("dynamic_analysis", {})
+        cis_score = dynamic.get("compliance_score", 0) if dynamic else 0
+    
+    metadata = [
+        ["Incident ID:", incident_id],
+        ["Report Generated:", generated_time],
+        ["Framework:", "CIS Controls v8 (Control 17)"],
+        ["Playbook Adherence Score:", f"{score:.1f}%"],
+        ["CIS Compliance Score:", f"{cis_score:.1f}%"],
+    ]
+    
+    meta_table = Table(metadata, colWidths=[2.5*inch, 4*inch])
+    meta_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor("#f0f4f8")),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+        ('TOPPADDING', (0, 0), (-1, -1), 10),
+        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor("#e2e8f0")),
+    ]))
+    
+    story.append(meta_table)
+    story.append(Spacer(1, 0.4*inch))
+    
+    # ============ EXECUTIVE SUMMARY ============
+    story.append(Paragraph("Executive Summary", heading_style))
+    
+    full = adherence.get("full_adherence", 0)
+    partial = adherence.get("partial_adherence", 0)
+    none_count = adherence.get("no_adherence", 0)
+    
+    if score >= 80:
+        score_status = "COMPLIANT"
+        score_color = "#22c55e"
+    elif score >= 60:
+        score_status = "PARTIALLY COMPLIANT"
+        score_color = "#f59e0b"
+    else:
+        score_status = "NON-COMPLIANT"
+        score_color = "#ef4444"
+    
+    summary = f"""
+    <b>Overall Status: <font color="{score_color}">{score_status}</font></b><br/><br/>
+    This CIS Controls v8 compliance report evaluates incident response activities 
+    against Control 17 (Incident Response Management) safeguards. The analysis 
+    was performed by PlaybookPulse's AI-powered compliance engine.<br/><br/>
+    <b>Key Metrics:</b><br/>
+    • Steps Fully Followed: {full}<br/>
+    • Steps Partially Followed: {partial}<br/>
+    • Steps Not Followed: {none_count}<br/>
+    • Overall Playbook Adherence: {score:.1f}%<br/>
+    • CIS Control 17 Compliance: {cis_score:.1f}%
+    """
+    
+    story.append(Paragraph(summary, styles['Normal']))
+    story.append(Spacer(1, 0.3*inch))
+    
+    # ============ CIS CONTROL 17 ANALYSIS ============
+    story.append(Paragraph("CIS Control 17 Safeguard Analysis", heading_style))
+    
+    if cis_compliance:
+        mappings = cis_compliance.get("mappings", [])
+        
+        if mappings:
+            control_data = [["Control ID", "Title", "Status", "SLA"]]
+            control_styles = [
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#1e3a5f")),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 9),
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                ('TOPPADDING', (0, 1), (-1, -1), 6),
+                ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+            ]
+            
+            for i, mapping in enumerate(mappings):
+                row_idx = i + 1
+                level = mapping.get("adherence_level", "unknown")
+                sla = mapping.get("sla_status", "N/A")
+                
+                # Truncate title if needed
+                title = mapping.get("control_title", "N/A")
+                if len(title) > 40:
+                    title = title[:37] + "..."
+                
+                control_data.append([
+                    mapping.get("control_id", "?"),
+                    title,
+                    level.upper(),
+                    sla.upper()
+                ])
+                
+                # Color code rows
+                if level == "full":
+                    bg = colors.HexColor("#dcfce7")
+                elif level == "partial":
+                    bg = colors.HexColor("#fef3c7")
+                else:
+                    bg = colors.HexColor("#fee2e2")
+                
+                control_styles.append(('BACKGROUND', (0, row_idx), (-1, row_idx), bg))
+            
+            control_table = Table(control_data, colWidths=[1*inch, 2.8*inch, 1.2*inch, 1*inch])
+            control_table.setStyle(TableStyle(control_styles))
+            story.append(control_table)
+        else:
+            story.append(Paragraph("No CIS control mappings available.", styles['Normal']))
+        
+        # SLA Compliance Section
+        dynamic = cis_compliance.get("dynamic_analysis", {})
+        if dynamic:
+            story.append(Spacer(1, 0.3*inch))
+            story.append(Paragraph("SLA Compliance", heading_style))
+            
+            sla_data = dynamic.get("sla_compliance", {})
+            sla_checks = sla_data.get("checks", [])
+            
+            if sla_checks:
+                sla_table_data = [["SLA", "Required (min)", "Actual (min)", "Status"]]
+                sla_styles = [
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#1e3a5f")),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+                    ('FONTSIZE', (0, 0), (-1, -1), 9),
+                ]
+                
+                for i, check in enumerate(sla_checks):
+                    row_idx = i + 1
+                    status = check.get("status", "unknown")
+                    
+                    sla_table_data.append([
+                        check.get("sla", "N/A"),
+                        str(check.get("required_minutes", "N/A")),
+                        str(check.get("actual_minutes", "N/A")),
+                        status.upper()
+                    ])
+                    
+                    if status == "met":
+                        bg = colors.HexColor("#dcfce7")
+                    else:
+                        bg = colors.HexColor("#fee2e2")
+                    
+                    sla_styles.append(('BACKGROUND', (0, row_idx), (-1, row_idx), bg))
+                
+                sla_table = Table(sla_table_data, colWidths=[2*inch, 1.5*inch, 1.5*inch, 1*inch])
+                sla_table.setStyle(TableStyle(sla_styles))
+                story.append(sla_table)
+            else:
+                story.append(Paragraph("Insufficient timeline data for SLA analysis.", styles['Normal']))
+    
+    story.append(Spacer(1, 0.3*inch))
+    
+    # ============ RECOMMENDATIONS ============
+    story.append(Paragraph("Recommendations", heading_style))
+    recommendations = analysis_result.get("recommendations", [])
+    
+    if recommendations:
+        for rec in recommendations[:10]:
+            # Color code by type
+            if "CRITICAL" in rec or "VIOLATION" in rec:
+                rec_text = f'<font color="#ef4444">⚠ {rec}</font>'
+            elif "WARNING" in rec:
+                rec_text = f'<font color="#f59e0b">⚡ {rec}</font>'
+            else:
+                rec_text = f"• {rec}"
+            
+            story.append(Paragraph(rec_text, styles['Normal']))
+            story.append(Spacer(1, 0.05*inch))
+    else:
+        story.append(Paragraph("No recommendations at this time.", styles['Normal']))
+    
+    # ============ FOOTER ============
+    story.append(Spacer(1, 0.5*inch))
+    footer_style = ParagraphStyle(
+        'CISFooter',
+        parent=styles['Normal'],
+        fontSize=8,
+        textColor=colors.grey,
+        alignment=TA_CENTER
+    )
+    story.append(Paragraph(
+        "Generated by PlaybookPulse | CIS Controls v8 Compliance Engine | " + generated_time,
+        footer_style
+    ))
+    
+    # Build PDF
+    doc.build(story)
+    
+    return str(output_path.absolute())

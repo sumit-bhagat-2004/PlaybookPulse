@@ -14,9 +14,7 @@ class AnalysisStatus(str, Enum):
 
 
 class ComplianceFramework(str, Enum):
-    NIST_SP_800_61 = "nist_sp_800_61"
-    SOC2_CC7 = "soc2_cc7"
-    ISO_27001_A16 = "iso_27001_a16"
+    CIS_CONTROLS_V8 = "cis_controls_v8"  # PRIMARY - CIS Controls v8 Control 17
 
 
 class AdherenceLevel(str, Enum):
@@ -33,8 +31,8 @@ class AnalysisRequest(BaseModel):
     jira_ticket_id: Optional[str] = Field(None, description="Jira ticket ID")
     github_repo: Optional[str] = Field(None, description="GitHub repository (org/repo)")
     compliance_frameworks: List[ComplianceFramework] = Field(
-        default=[ComplianceFramework.NIST_SP_800_61],
-        description="Compliance frameworks to check against"
+        default=[ComplianceFramework.CIS_CONTROLS_V8],
+        description="Compliance frameworks to check against (CIS Controls v8 only)"
     )
     
     class Config:

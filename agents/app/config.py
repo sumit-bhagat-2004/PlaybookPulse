@@ -13,6 +13,7 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         case_sensitive=False,
         json_schema_extra=None,
+        extra="ignore",  # Ignore extra fields like slack_webhook_url
     )
     
     # Environment

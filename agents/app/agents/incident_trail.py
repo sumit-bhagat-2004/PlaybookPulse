@@ -48,7 +48,13 @@ class IncidentTrailAgent(BaseAgent):
         Collect incident data from configured integrations
         
         Args:
-            input_data: Dict with 'slack_thread_id', 'jira_ticket_id', 'github_repo'
+            input_data: Dict with:
+                - 'slack_thread_id': Slack thread ID to fetch (format: channel_id:thread_ts)
+                - 'slack_data': Pre-fetched Slack data (alternative to thread_id)
+                - 'jira_ticket_id': Jira ticket ID to fetch
+                - 'jira_data': Pre-fetched Jira data (alternative to ticket_id)
+                - 'github_repo': GitHub repo to fetch
+                - 'github_events': Pre-fetched GitHub events (alternative to repo)
             
         Returns:
             Dict with collected incident data
@@ -56,6 +62,11 @@ class IncidentTrailAgent(BaseAgent):
         slack_thread_id = input_data.get("slack_thread_id")
         jira_ticket_id = input_data.get("jira_ticket_id")
         github_repo = input_data.get("github_repo")
+        
+        # Also support pre-fetched data
+        slack_data_raw = input_data.get("slack_data")
+        jira_data_raw = input_data.get("jira_data")
+        github_events_raw = input_data.get("github_events")
         
         self.log("Starting incident trail collection")
         
@@ -70,8 +81,31 @@ class IncidentTrailAgent(BaseAgent):
             }
         }
         
-        # Collect from Slack
-        if slack_thread_id and self.slack_client and self.slack_client.is_configured():
+        # If raw data is provided directly, use it
+        if slack_data_raw:
+            self.log("Using pre-fetched Slack data")
+            if isinstance(slack_data_raw, dict):
+                incident_data["slack_messages"] = slack_data_raw.get("messages", [])
+                incident_data["slack_participants"] = slack_data_raw.get("participants", [])
+                incident_data["slack_timeline"] = slack_data_raw.get("timeline", [])
+                self.log(f"Loaded {len(incident_data['slack_messages'])} Slack messages")
+        
+        if jira_data_raw:
+            self.log("Using pre-fetched Jira data")
+            if isinstance(jira_data_raw, dict):
+                incident_data["jira_issue"] = jira_data_raw.get("issue", {})
+                incident_data["jira_comments"] = jira_data_raw.get("comments", [])
+                incident_data["jira_timeline"] = jira_data_raw.get("timeline", [])
+                self.log(f"Loaded {len(incident_data['jira_comments'])} Jira comments")
+        
+        if github_events_raw:
+            self.log("Using pre-fetched GitHub events")
+            if isinstance(github_events_raw, list):
+                incident_data["github_events"] = github_events_raw
+                self.log(f"Loaded {len(github_events_raw)} GitHub events")
+        
+        # Collect from Slack (only if not already provided as raw data)
+        if slack_thread_id and self.slack_client and self.slack_client.is_configured() and not slack_data_raw:
             try:
                 self.log(f"Collecting Slack data from thread: {slack_thread_id}")
                 # Parse slack_thread_id (format: channel_id:thread_ts)
@@ -91,8 +125,8 @@ class IncidentTrailAgent(BaseAgent):
         elif slack_thread_id:
             self.log("Slack integration not configured - skipping Slack data collection", level="warning")
         
-        # Collect from Jira
-        if jira_ticket_id and self.jira_client and self.jira_client.is_configured():
+        # Collect from Jira (only if not already provided as raw data)
+        if jira_ticket_id and self.jira_client and self.jira_client.is_configured() and not jira_data_raw:
             try:
                 self.log(f"Collecting Jira data from ticket: {jira_ticket_id}")
                 jira_data = await self.jira_client.parse_issue_for_incident(jira_ticket_id)
@@ -105,8 +139,8 @@ class IncidentTrailAgent(BaseAgent):
         elif jira_ticket_id:
             self.log("Jira integration not configured - skipping Jira data collection", level="warning")
         
-        # Collect from GitHub
-        if github_repo and self.github_client and self.github_client.is_configured():
+        # Collect from GitHub (only if not already provided as raw data)
+        if github_repo and self.github_client and self.github_client.is_configured() and not github_events_raw:
             try:
                 self.log(f"Collecting GitHub data from repo: {github_repo}")
                 github_data = await self.github_client.parse_repo_for_incident(github_repo)
